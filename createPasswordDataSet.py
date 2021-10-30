@@ -111,7 +111,7 @@ def main():
 
     for line in badPassFile:
         try:
-            if line.strip() != "":
+            if line.strip() != "" and len(line.strip()) > 2 and len(line.strip()) < 12 and "\"" not in line.strip() and " " not in line:
                 badRow = [line.strip(), "bad"]
                 writer.writerow(badRow)
                 count += 1
@@ -121,9 +121,14 @@ def main():
     badPassFile.close()
     
     #create strong passwords and add as 'good'
+    newC = 0
     for x in range(count):
-        goodRow = [getGoodPassword(), "good"]
+        goodPass = getGoodPassword()
+        goodRow = [goodPass, "good"]
         writer.writerow(goodRow)
+        newC += 1
+        
+    print("Number of bad passwords wrote: {}\nNumber of good passwords wrote: {}".format(count, newC))
 
     datasetFile.close()
 
