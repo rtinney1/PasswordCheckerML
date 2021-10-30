@@ -1,3 +1,12 @@
+"""
+File: createPasswordDataSet.py
+Creator: Randi Tinney
+Date Created: 29 Oct 2021
+
+Uses the rockyou.txt file to create a csv of 'bad' passwords. Then uses a password creating function to create 'good' passwords.
+Creates the passworddataset.csv file to be used for ML
+"""
+
 import csv, random, string, sys
 
 charsUpper = list(string.ascii_uppercase)
@@ -109,6 +118,7 @@ def main():
             pass
 
     badPassFile.close()
+    
     #create strong passwords and add as 'good'
     for x in range(count):
         goodRow = [getGoodPassword(), "good"]
