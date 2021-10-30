@@ -99,6 +99,7 @@ def main():
     #create dataset csv
     datasetFile = open("passworddataset.csv", "w", newline="")
     writer = csv.writer(datasetFile, delimiter=",")
+    writer.writerow(["Password"], ["Label"])
 
     count = 0
     #read in rockyou.txt and label all passwords within as 'bad'
