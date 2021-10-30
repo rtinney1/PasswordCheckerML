@@ -111,7 +111,7 @@ def main():
 
     for line in badPassFile:
         try:
-            if line.strip != "":
+            if line.strip() != "":
                 badRow = [line.strip(), "bad"]
                 writer.writerow(badRow)
                 count += 1
