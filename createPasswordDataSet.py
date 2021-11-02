@@ -2,12 +2,11 @@
 File: createPasswordDataSet.py
 Creator: Randi Tinney
 Date Created: 29 Oct 2021
-
 Uses the rockyou.txt file to create a csv of 'bad' passwords. Then uses a password creating function to create 'good' passwords.
 Creates the passworddataset.csv file to be used for ML
 """
 
-import csv, random, string, sys
+import argparse, csv, random, string, sys
 
 charsUpper = list(string.ascii_uppercase)
 charsLower = list(string.ascii_lowercase)
@@ -95,43 +94,95 @@ def getGoodPassword():
 
     return "".join(password)
 
-def main():
-    #create dataset csv
-    datasetFile = open("passworddataset.csv", "w", newline="")
-    writer = csv.writer(datasetFile, delimiter=",")
-    writer.writerow(["Password"], ["Label"])
-
-    count = 0
-    #read in rockyou.txt and label all passwords within as 'bad'
+"""
+getBadPasswords reads in an array of numbers and iterates through the password file rockyou.txt 
+    and appends the found password to an array. The function then returns the array
+    To narrow down on passwords, passwords must be greater than 2 chars, but less than 12, they
+    cannot contain a " or a space as a character.
+"""
+def getBadPasswords(nums):
+     #read in rockyou.txt and label all passwords within as 'bad'
     try:
-        badPassFile = open("rockyou.txt", "r", encoding="utf-8", errors="ignore") 
+        badRows = []
+        with open("rockyou.txt", "r", encoding="utf-8", errors="ignore") as badPassFile:
+            count = 0
+            for line in badPassFile:
+                try:
+                    if line.strip() != "" and len(line.strip()) > 2 and len(line.strip()) < 12 and "\"" not in line.strip() and " " not in line:
+                        if count in nums:
+                            badRows.append(line.strip())
+                            count += 1
+                        else:
+                            count += 1
+                except:
+                    pass
+        return badRows
     except FileNotFoundError:
         print("Please go download rockyou.txt and move to the current directory.\n\nIf within a Kali image, run the commands `cp /usr/share/wordlists/rockyou.txt.gz .' and 'gunzip rockyou.txt'\n\nOr, you can download the file from this link: https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwjf2ceg4vDzAhUEZzABHcQTAI4QFnoECAgQAQ&url=https%3A%2F%2Fgithub.com%2Fbrannondorsey%2Fnaive-hashcat%2Freleases%2Fdownload%2Fdata%2Frockyou.txt&usg=AOvVaw3snAERl1mU6Ccr4WFEazBd")
         sys.exit()
 
-    for line in badPassFile:
-        try:
-            if line.strip() != "" and len(line.strip()) > 2 and len(line.strip()) < 12 and "\"" not in line.strip() and " " not in line:
-                badRow = [line.strip(), "bad"]
-                writer.writerow(badRow)
-                count += 1
-        except:
-            pass
+"""
+    Main function of the program
+"""
+def main(num):
+    random.seed(69)
+    #create dataset csv
+    datasetFile = open("passworddataset.csv", "w", newline="", encoding="utf-8")
+    writer = csv.writer(datasetFile, delimiter=",")
+    #writer.writerow(["Password", "Label", "Length", "NumUpperChars", "NumLowerChars", "NumDigits", "NumSpecialChars"])
+    writer.writerow(["Password", "Label"])
 
-    badPassFile.close()
-    
-    #create strong passwords and add as 'good'
-    newC = 0
-    for x in range(count):
-        goodPass = getGoodPassword()
-        goodRow = [goodPass, "good"]
-        writer.writerow(goodRow)
-        newC += 1
+    if num == "all":
+        count = 0
+        #read in rockyou.txt and label all passwords within as 'bad'
+        try:
+            badPassFile = open("rockyou.txt", "r", encoding="utf-8", errors="ignore") 
+        except FileNotFoundError:
+            print("Please go download rockyou.txt and move to the current directory.\n\nIf within a Kali image, run the commands `cp /usr/share/wordlists/rockyou.txt.gz .' and 'gunzip rockyou.txt'\n\nOr, you can download the file from this link: https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwjf2ceg4vDzAhUEZzABHcQTAI4QFnoECAgQAQ&url=https%3A%2F%2Fgithub.com%2Fbrannondorsey%2Fnaive-hashcat%2Freleases%2Fdownload%2Fdata%2Frockyou.txt&usg=AOvVaw3snAERl1mU6Ccr4WFEazBd")
+            sys.exit()
+
+        for line in badPassFile:
+            try:
+                if line.strip() != "" and len(line.strip()) > 2 and len(line.strip()) < 12 and "\"" not in line.strip() and " " not in line:
+                    badRow = [line.strip(), "bad"]
+                    writer.writerow(badRow)
+                    count += 1
+            except:
+                pass
+
+        badPassFile.close()
         
-    print("Number of bad passwords wrote: {}\nNumber of good passwords wrote: {}".format(count, newC))
+        #create strong passwords and add as 'good'
+        for x in range(count):
+            goodPass = getGoodPassword()
+            goodRow = [goodPass, "good"]
+            writer.writerow(goodRow)
+    else:
+        num = int(num)
+        #create array of random numbers
+        randLines = []
+        for x in range(num):
+            randLines.append(random.randint(0, 12730586))
+    
+        #Get randomized bad passwords
+        badRows = getBadPasswords(randLines)
+
+        for badRow in badRows:
+            data = [badRow, "bad"]
+            writer.writerow(data)
+    
+        #create strong passwords and add as 'good'
+        for x in range(num):
+            goodPass = getGoodPassword()
+            data = [goodPass, "good"]
+            writer.writerow(data)
 
     datasetFile.close()
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser("Create password dataset via given number of passwords from rockyou.txt and auto generated secure passwords")
+    parser.add_argument("-n", "--num", help="Number of passwords to include in file", required=True)
+    args = parser.parse_args()
+    
+    main(args.num)
