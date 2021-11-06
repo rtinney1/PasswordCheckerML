@@ -68,7 +68,7 @@ def getTokens(input):
 
 #Creates the xTrain, yTrain, xTest, yTest data for the models
 def createTrainTestData(path):
-    print("Creating data set\n")
+    print("Creating testing and training data\n")
     passwordsCSV = pd.read_csv(path, ',', on_bad_lines="skip", engine="python")
 
     yLabels = passwordsCSV["Label"]
