@@ -15,13 +15,14 @@ library(e1071)
 
 #Hard set dataset location and load it in
 passwordDataSetLoc <- "C:/Users/Randi/Desktop/School/CYBR593B/passworddataset.csv"
-passwordCSV <- read.csv(passwordDataSetLoc, sep=",")
+#passwordCSV <- read.csv(passwordDataSetLoc, sep=",")
+passwordCSV <- fread(passwordDataSetLoc)
 
 y = as.vector(passwordCSV$Label)
-corpus = as.vector(passwordCSV$Password)
+allPasswords = as.vector(passwordCSV$Password)
 
 vectorizer = TfIdfVectorizer$new()
-x = vectorizer$fit_transform(corpus)
+x = vectorizer$fit_transform(allPasswords) #Creates "Error: cannot allocate vector of size 3808899.5 Gb on machine with 16GB RAM
 nSample = NROW(x)
 w = 0.8
 xTrain = x[0:(w*nSample),]
@@ -35,6 +36,9 @@ pred <- as.numeric(predict(modelLambda, newx=as.matrix(xTest), type="class"))
 lgSum = (yTest==pred)/NROW(pred)
 sprintf("Logistic regression prediction score: %d", lgSum)
 
+#===========================================
+#OLD TESTS
+#===========================================
 #Double check loaded correctly and there are no NA values (any should give FALSE reading)
 str(passwordCSV)
 any(is.na(passwordCSV))
