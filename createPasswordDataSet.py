@@ -24,7 +24,7 @@ getGoodPassword generates a password with length of 8-12 characters
 and will choose the characters randomly from the chars global list.
 """
 def getGoodPassword():
-    passLengthTotal = random.randint(8,12)
+    passLengthTotal = random.randint(8,13)
     #print("Total password length: {}".format(passLengthTotal))
     password = []
 
