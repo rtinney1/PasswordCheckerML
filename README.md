@@ -8,9 +8,9 @@ Make sure rockyou.txt is in the same directory as createPasswordDataSet.py.
 
 To run, type
 ```
-python createPasswordDataSet.py -n <NUM>
+python createPasswordDataSet.py -n NUM
 ```
-where <NUM> is the number of password you want in the created dataset. 
+where NUM is the number of password you want in the created dataset. 
 
 **Note**: The number passed will actually result in that number * 2 passwords. The number indicates the number of "bad" passwords to grab from rockyou.txt and the script will create an equal number of "good" passwords. For example, if you pass 10 to the script, you will get 20 passwords.
 
