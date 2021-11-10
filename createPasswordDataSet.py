@@ -101,7 +101,7 @@ getBadPasswords reads in an array of numbers and iterates through the password f
     cannot contain a " or a space as a character.
 """
 def getBadPasswords(nums):
-     #read in rockyou.txt and label all passwords within as 'bad'
+    #read in rockyou.txt and label all passwords within as 'bad'
     try:
         badRows = []
         with open("rockyou.txt", "r", encoding="utf-8", errors="ignore") as badPassFile:
@@ -124,12 +124,11 @@ def getBadPasswords(nums):
 """
     Main function of the program
 """
-def main(num):
+def main(num, file):
     random.seed(69)
     #create dataset csv
-    datasetFile = open("passworddataset.csv", "w", newline="", encoding="utf-8")
+    datasetFile = open("{}.csv".format(file), "w", newline="", encoding="utf-8")
     writer = csv.writer(datasetFile, delimiter=",")
-    #writer.writerow(["Password", "Label", "Length", "NumUpperChars", "NumLowerChars", "NumDigits", "NumSpecialChars"])
     writer.writerow(["Password", "Label"])
 
     if num == "all":
@@ -159,20 +158,29 @@ def main(num):
             writer.writerow(goodRow)
     else:
         num = int(num)
+        print("Grabbing {} bad passwords from rockyou.txt".format(num))
         #create array of random numbers
         randLines = []
-        for x in range(num):
-            randLines.append(random.randint(0, 12730586))
+        count = 0
+        while True:
+            x = random.randint(0, 12730586)
+            if x not in randLines:
+                randLines.append(x)
+                count += 1
+                if count == num:
+                    break
     
         #Get randomized bad passwords
         badRows = getBadPasswords(randLines)
 
+        print("Adding bad passwords to {}.csv".format(file))
         for badRow in badRows:
             data = [badRow, "bad"]
             writer.writerow(data)
     
+        print("Creating {} good passwords and adding them to {}.csv".format(count, file))
         #create strong passwords and add as 'good'
-        for x in range(num):
+        for x in range(count):
             goodPass = getGoodPassword()
             data = [goodPass, "good"]
             writer.writerow(data)
@@ -183,6 +191,7 @@ def main(num):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("Create password dataset via given number of passwords from rockyou.txt and auto generated secure passwords")
     parser.add_argument("-n", "--num", help="Number of passwords to include in file", required=True)
+    parser.add_argument("-f", "--file", help="Name of dataset file to create", default="passworddataset")
     args = parser.parse_args()
     
-    main(args.num)
+    main(args.num, args.file)
