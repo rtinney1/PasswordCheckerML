@@ -211,6 +211,7 @@ if __name__ == "__main__":
 5\tK-Nearest Neighbors
 6\tSupport Vector Regression
 7\tSupport Vector Classifier
+0\tAll
 """, required=True, type=forceOptions)
     parser.add_argument("-f", "--file", help="Dataset to use")
     args = parser.parse_args()
