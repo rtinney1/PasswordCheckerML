@@ -17,10 +17,27 @@ where NUM is the number of password you want in the created dataset and FILE is 
 **Note**: If you pass the word *all* to the script, it will use all viable passwords from rockyou.txt. This creates a dataset of around 2.5 million "good" and "bad" passwords.
   
 ## passwordML.py
-To run passwordML.py, first install the required modules via
+First install the required modules via
 ```
 pip install -r requirements.txt
 ```
+
+then use the command
+```
+python passwordML.py -m ML -f FILE
+```
+where ML is the number corresponding to the Machine Learning algorithm you want to use and f is the full file name of the dataset. 
+
+The following values are currently acceptable for the -m flag
+
+0. All
+1. Logistic Regression
+2. Random Forest Classifier
+3. Decision Tree Classifier
+4. Linear Regression
+5. K-Nearest Neighbors
+6. Support Vector Regression
+7. Support Vector Classifier
   
 ## passwordML.R
 Currently unverified due to lack of machine resources
