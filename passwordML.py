@@ -76,6 +76,22 @@ RESULTS for {}
         print("\tF1 Score: {}".format(f1_score(yTest, ret, average="binary", pos_label="bad")))
     except:
         pass
+    try:
+        print("\tExplained Variance Score: {}".format(explained_variance_score(yTest, ret)))
+    except:
+        pass
+    try:
+        print("\tMax Error: {}".format(max_error(yTest, ret)))
+    except:
+        pass
+    try:
+        print("\tR2 Score: {}".format(r2_score(yTest, ret)))
+    except:
+        pass 
+    try:
+        print("\tMean Gamma Deviance: {}".format(mean_gamma_deviance(yTest, ret)))
+    except:
+        pass
 
     predictMe(modelType, model, vectorizer)
 
@@ -195,7 +211,6 @@ if __name__ == "__main__":
 5\tK-Nearest Neighbors
 6\tSupport Vector Regression
 7\tSupport Vector Classifier
-0\tAll
 """, required=True, type=forceOptions)
     parser.add_argument("-f", "--file", help="Dataset to use")
     args = parser.parse_args()
