@@ -76,22 +76,6 @@ RESULTS for {}
         print("\tF1 Score: {}".format(f1_score(yTest, ret, average="binary", pos_label="bad")))
     except:
         pass
-    try:
-        print("\tExplained Variance Score: {}".format(explained_variance_score(yTest, ret)))
-    except:
-        pass
-    try:
-        print("\tMax Error: {}".format(max_error(yTest, ret)))
-    except:
-        pass
-    try:
-        print("\tR2 Score: {}".format(r2_score(yTest, ret)))
-    except:
-        pass 
-    try:
-        print("\tMean Gamma Deviance: {}".format(mean_gamma_deviance(yTest, ret)))
-    except:
-        pass
 
     predictMe(modelType, model, vectorizer)
 
