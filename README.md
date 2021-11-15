@@ -4,10 +4,10 @@ Machine Learning programs to verify whether a password is good or bad. Each scri
 The data is created with the createPasswordDataSet.py script and uses the rockyou.txt file to formulate a list of "bad" passwords and uses an internal function to create good passwords based off of the following criteria:
 1. Must be greater than 8 characters long (we force the good passwords to be a length between 8 and 12)
 2. Contain at least 3 of the 4:
-  - Lowercase Character
-  - Uppercase Character
-  - Number
-  - Special Character
+   - Lowercase Character
+   - Uppercase Character
+   - Number
+   - Special Character
 
 Once the data set has been created, users then have the option to create an already tokenized file (required for R script). This gives each type of character a numberical value for the machine learning algorithms to work with. The Python script does this automatically.
 
