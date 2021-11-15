@@ -8,13 +8,18 @@ Make sure rockyou.txt is in the same directory as createPasswordDataSet.py.
 
 To run, type
 ```
-python createPasswordDataSet.py -n NUM -f FILE
+python createPasswordDataSet.py -n NUM -f FILE -t TOKENIZE(True/False)
 ```
-where NUM is the number of password you want in the created dataset and FILE is the name of the file without the .csv portion
+where 
+ - NUM is the number of password you want in the created dataset
+ - FILE is the name of the file without the .csv portion
+ - TOKENIZE is a True/False value on whether you want the tokenized csv files to be created. Default is False. This will create two extra files along with the FILE.csv. It will create a FILE_tfidf_char.csv and FILE_tfidf_int.csv.
 
 **Note**: The number passed will actually result in that number * 2 passwords. The number indicates the number of "bad" passwords to grab from rockyou.txt and the script will create an equal number of "good" passwords. For example, if you pass 10 to the script, you will get 20 passwords.
 
 **Note**: If you pass the word *all* to the script, it will use all viable passwords from rockyou.txt. This creates a dataset of around 2.5 million "good" and "bad" passwords.
+
+**Note**: For the R script to work, you need the tokenized files and need to pass True to the -t flag
   
 ## passwordML.py
 First install the required modules via
@@ -40,4 +45,6 @@ The following values are currently acceptable for the -m flag
 7. Support Vector Classifier
   
 ## passwordML.R
-Currently unverified due to lack of machine resources
+Need to change the hardcoded locations (line 11 for the tfidf_char and line 12 for the tfidf_int) of the tokenized files created from the createPasswordDataSet.py. This enables the various machine learning algorithms to function correctly and give accurate metrics. 
+
+Currently, there are two algorithms (Logistic Regression and Linear Regression) that requires the tfidf_int csv file. They give values and predictions, but currently I am unsure how to read the data. The other algorithms give good plots and confusionMatrix metrics.
