@@ -1,75 +1,80 @@
 library(caret)
+library(e1071)
+library(ggplot2)
 library(rpart)
 library(rpart.plot)
-library(data.table)
-library(ggplot2)
-library(corrgram)
-library(tokenizers)
-library(superml)
-library(glmnet)
-library(survival)
-library(lattice)
-library(rms)
-library(dplyr)
-library(e1071)
+library(nnet)
 
-#Hard set dataset location and load it in
-passwordDataSetLoc <- "C:/Users/Randi/Desktop/School/CYBR593B/passworddataset.csv"
-#passwordCSV <- read.csv(passwordDataSetLoc, sep=",")
-passwordCSV <- fread(passwordDataSetLoc)
+set.seed(42)
 
-y = as.vector(passwordCSV$Label)
-allPasswords = as.vector(passwordCSV$Password)
+#Loading in CSV (Hardset location values)
+csvChar <- "C:\\Users\\Randi\\Desktop\\School\\Masters\\CYBR593B\\10000passwords_tfidf_char.csv"
+csvInt <- "C:\\Users\\Randi\\Desktop\\School\\Masters\\CYBR593B\\10000passwords_tfidf_int.csv"
+baseChar <- read.csv(csvChar, sep=",")
+baseInt <- read.csv(csvInt, sep=",")
 
-vectorizer = TfIdfVectorizer$new()
-x = vectorizer$fit_transform(allPasswords) #Creates "Error: cannot allocate vector of size 3808899.5 Gb on machine with 16GB RAM
-nSample = NROW(x)
-w = 0.8
-xTrain = x[0:(w*nSample),]
-yTrain = y[0:(w*nSample)]
-xTest = x[((w*nSample)+1):nSample,]
-yTest = y[((w*nSample)+1):nSample]
+#Creating test/train data for good/bad
+trainIndex <- createDataPartition(baseChar$Label, p=0.70, list=FALSE)
+trainChar <- baseChar[trainIndex,]
+testChar <- baseChar[-trainIndex,]
 
-#Logistic Regression
-modelLambda <- cv.glmnet(as.matrix(xTrain), as.factor(yTrain), nfolds=10, alpha=1, family="binomial", type.measure="class")
-pred <- as.numeric(predict(modelLambda, newx=as.matrix(xTest), type="class"))
-lgSum = (yTest==pred)/NROW(pred)
-sprintf("Logistic regression prediction score: %d", lgSum)
+#Creating test/train data for 1/0
+trainIndexInt <- createDataPartition(baseInt$Label, p=0.70, list=FALSE)
+trainInt <- baseInt[trainIndexInt,]
+testInt <- baseInt[-trainIndexInt,]
 
-#===========================================
-#OLD TESTS
-#===========================================
-#Double check loaded correctly and there are no NA values (any should give FALSE reading)
-str(passwordCSV)
-any(is.na(passwordCSV))
+#Logistic Regression - Requires Int data
+##  I get data but don't know how to read it
+logReg <- glm(Label~., data=trainInt, family=binomial)
+LogRegPredict <- predict(logReg, testInt)
+logRedPredict
 
-#Creating tokens via character tokenizatin
-tokens <- tokenize_characters(passwordCSV$Password, strip_non_alphanum=FALSE, lowercase=FALSE, simplify=FALSE)
+#Decision Tree Model
+treemodel <- rpart(Label~., data=trainChar)
+treeplot <- rpart.plot(treemodel)
+treeplot <- rpart.plot(treemodel, compress = 1, varlen = 5, tweak = 1.2, digits = 2)
 
-#Quick plot to see correlation between attributes
-corrgram(tokens, lower.panel=panel.shade, upper.panel=panel.cor)
+treeModelPredict <- predict(treemodel, testChar, type="class")
+confusionMatrix(treeModelPredict, as.factor(testChar$Label), mode="prec_recall")
 
-#Set seed
-set.seed(69)
+#Linear Regression - Requires int data
+##  I get data but don't know
+lrModel <- lm(Label~., data=trainInt)
+lrPredict <- predict(lrModel, testInt)
+lrPredict
 
-#Create partition, train, and test sets
-trainIndex <- createDataPartition(passwordCSV$Label, p=0.70, list=FALSE)
-Train <- passwordCSV[trainIndex,]
-Test <- passwordCSV[-trainIndex,]
+#KNN
+knn.model <- train(Label~., data=trainChar, method="knn",
+                   tuneLength = 10,
+                   trControl = trainctrl,
+                   metric="Accuracy")
+knn.predict <- predict(knn.model, testChar)
+confusionMatrix(knn.predict, as.factor(testChar$Label), mode="prec_recall")
+ggplot(data=knn.model, aes(x=knn.model$C, y=knn.model$accuracy))
 
-#Create Linear Regression Model
-lrModel <- lm(formula=Length~., data=Train)
-summary(lrModel)
+#SVM
+trainctrl <- trainControl(method = "cv", number = 10, verboseIter = TRUE)
+svm.model <- train(Label~., data=trainChar, method="svmRadial",
+                   tuneLength = 10,
+                   trControl = trainctrl,
+                   metric="Accuracy")
+svm.predict <- predict(svm.model, testChar)
+confusionMatrix(svm.predict, as.factor(testChar$Label), mode="prec_recall")
+ggplot(data=svm.model, aes(x=svm.model$C, y=svm.model$accuracy))
 
-#Create residual histogram
-rHisto <- as.data.frame(residuals(lrModel))
-ggplot(rHisto, aes(residuals(lrModel))) + geom_histogram(fill="red", color="gray")
 
-prediction <- predict(lrModel, Test)
+#SVM GridSearch
+svmGrid <- expand.grid(sigma = c(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1), C = c(0.25, 0.5, 1, 2, 4, 8, 16, 32, 64, 128))
+svm.model2 <- train(Label~., data=trainChar, method="svmRadial",
+                    trControl = trainctrl, tuneGrid = svmGrid)
+svmModel2Predict <- predict(svm.model2, testChar)
+confusionMatrix(svmModel2Predict, as.factor(testChar$Label), mode="prec_recall")
 
-treeModel <- rpart(Label~., data=Train)
-treePlot <- rpart.plot(treeModel)
-treePlot <- rpart.plot(treeModel, compress = 1, varlen = 5, tweak = 1.2, digits = 2)
-
-Prediction <- predict(treeModel, Test, type="class")  
-Prediction
+#Neural Net
+nnet.model <- train(Label~., data=trainChar, method="nnet",
+                    tuneLength = 10,
+                    trControl = trainctrl,
+                    metric="Accuracy")
+nnet.predict <- predict(nnet.model, testChar)
+confusionMatrix(nnet.predict, as.factor(testChar$Label), mode = "prec_recall")
+ggplot(data=nnet.model, aes(x=nnet.model$size, y=nnet.model$decay))
