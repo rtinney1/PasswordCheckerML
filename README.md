@@ -11,7 +11,7 @@ The dataset is created with the createPasswordDataSet.py script. It uses the roc
 
 Once the data set has been created, users then have the option to create an already tokenized file (required for R script). This gives each type of character a numerical value for the machine learning algorithms to work with. The Python script does this automatically.
 
-Currently, following algorithms are available in the
+Currently, the following algorithms are available in the
 
 ###### Python script
 1. Logistic Regression
