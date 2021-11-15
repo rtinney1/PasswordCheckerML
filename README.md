@@ -1,5 +1,34 @@
 # PasswordCheckerML
-Machine Learning programs to verify whether a password is good or bad
+Machine Learning programs to verify whether a password is good or bad. Each script (Python and R) use a variety of machine learning algorithms to determine which provides the highest accuracy, precision, and other metrics.
+
+The data is created with the createPasswordDataSet.py script and uses the rockyou.txt file to formulate a list of "bad" passwords and uses an internal function to create good passwords based off of the following criteria:
+1. Must be greater than 8 characters long (we force the good passwords to be a length between 8 and 12)
+2. Contain at least 3 of the 4:
+  - Lowercase Character
+  - Uppercase Character
+  - Number
+  - Special Character
+
+Once the data set has been created, users then have the option to create an already tokenized file (required for R script). This gives each type of character a numberical value for the machine learning algorithms to work with. The Python script does this automatically.
+
+Currently, following algorithms are available in the
+####### Python script
+1. Logistic Regression
+2. Random Forest Classifier
+3. Decision Tree Classifier
+4. Linear Regression
+5. K-Nearest Neighbors
+6. Support Vector Regression
+7. Support Vector Classifier
+
+####### R script
+1. Logistic Regression
+2. Decision Tree Model
+3. Linear Regression
+4. K-Nearest Neighbors
+5. SVM (aka Support Vector Classifier)
+6. SVM Grid Search
+7. Neural Net
 
 ## createPasswordDataSet.py
 Download rockyou.txt via [this link](https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwjf2ceg4vDzAhUEZzABHcQTAI4QFnoECAgQAQ&url=https%3A%2F%2Fgithub.com%2Fbrannondorsey%2Fnaive-hashcat%2Freleases%2Fdownload%2Fdata%2Frockyou.txt&usg=AOvVaw3snAERl1mU6Ccr4WFEazBd)
@@ -50,10 +79,4 @@ Need to change the hardcoded locations (line 11 for the tfidf_char and line 12 f
 Currently, there are two algorithms (Logistic Regression and Linear Regression) that requires the tfidf_int csv file. They give values and predictions, but currently I am unsure how to read the data. The other algorithms give good plots and confusionMatrix metrics.
 
 The following algorithms are currently being used:
-1. Logistic Regression
-2. Decision Tree Model
-3. Linear Regression
-4. K-Nearest Neighbors
-5. SVM (aka Support Vector Classifier)
-6. SVM Grid Search
-7. Neural Net
+
