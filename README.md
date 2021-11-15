@@ -1,7 +1,7 @@
 # PasswordCheckerML
 Machine Learning programs to verify whether a password is good or bad. Each script (Python and R) use a variety of machine learning algorithms to determine which provides the highest accuracy, precision, and other metrics.
 
-The dataset is created with the createPasswordDataSet.py script and uses the rockyou.txt file to formulate a list of "bad" passwords and uses an internal function to create good passwords based off of the following criteria:
+The dataset is created with the createPasswordDataSet.py script. It uses the rockyou.txt file to formulate a list of "bad" passwords and uses an internal function to create good passwords based off of the following criteria:
 1. Must be greater than 8 characters long (we force the good passwords to be a length between 8 and 12)
 2. Contain at least 3 of the 4:
    - Lowercase Character
