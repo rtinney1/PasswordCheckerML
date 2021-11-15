@@ -8,8 +8,8 @@ library(nnet)
 set.seed(42)
 
 #Loading in CSV (Hardset location values)
-csvChar <- "C:\\Users\\Randi\\Desktop\\School\\Masters\\CYBR593B\\10000passwords_tfidf_char.csv"
-csvInt <- "C:\\Users\\Randi\\Desktop\\School\\Masters\\CYBR593B\\10000passwords_tfidf_int.csv"
+csvChar <- "FILE LOCATION OF tfidf_char.csv FILE CREATED FROM createPasswordDataSet.py"
+csvInt <- "FILE LOCATION OF tfidf_int.csv FILE CREATED FROM createPasswordDataSet.py"
 baseChar <- read.csv(csvChar, sep=",")
 baseInt <- read.csv(csvInt, sep=",")
 
