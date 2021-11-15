@@ -48,3 +48,12 @@ The following values are currently acceptable for the -m flag
 Need to change the hardcoded locations (line 11 for the tfidf_char and line 12 for the tfidf_int) of the tokenized files created from the createPasswordDataSet.py. This enables the various machine learning algorithms to function correctly and give accurate metrics. 
 
 Currently, there are two algorithms (Logistic Regression and Linear Regression) that requires the tfidf_int csv file. They give values and predictions, but currently I am unsure how to read the data. The other algorithms give good plots and confusionMatrix metrics.
+
+The following algorithms are currently being used:
+1. Logistic Regression
+2. Decision Tree Model
+3. Linear Regression
+4. K-Nearest Neighbors
+5. SVM (aka Support Vector Classifier)
+6. SVM Grid Search
+7. Neural Net
