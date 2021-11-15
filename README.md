@@ -79,5 +79,3 @@ Need to change the hardcoded locations (line 11 for the tfidf_char and line 12 f
 
 Currently, there are two algorithms (Logistic Regression and Linear Regression) that requires the tfidf_int csv file. They give values and predictions, but currently I am unsure how to read the data. The other algorithms give good plots and confusionMatrix metrics.
 
-The following algorithms are currently being used:
-
