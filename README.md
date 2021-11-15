@@ -13,7 +13,7 @@ Once the data set has been created, users then have the option to create an alre
 
 Currently, following algorithms are available in the
 
-####### Python script
+###### Python script
 1. Logistic Regression
 2. Random Forest Classifier
 3. Decision Tree Classifier
@@ -22,7 +22,7 @@ Currently, following algorithms are available in the
 6. Support Vector Regression
 7. Support Vector Classifier
 
-####### R script
+###### R script
 1. Logistic Regression
 2. Decision Tree Model
 3. Linear Regression
