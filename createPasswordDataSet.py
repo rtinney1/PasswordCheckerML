@@ -5,8 +5,18 @@ Date Created: 29 Oct 2021
 Uses the rockyou.txt file to create a csv of 'bad' passwords. Then uses a password creating function to create 'good' passwords.
 Creates the passworddataset.csv file to be used for ML
 """
+from sklearn.feature_extraction.text import TfidfVectorizer
 
-import argparse, csv, random, string, sys
+import pandas as pd
+
+import argparse
+import csv
+import random
+import string
+import sys
+
+import warnings
+warnings.simplefilter(action="ignore", category=FutureWarning)
 
 charsUpper = list(string.ascii_uppercase)
 charsLower = list(string.ascii_lowercase)
@@ -108,23 +118,75 @@ def getBadPasswords(nums):
             count = 0
             for line in badPassFile:
                 try:
-                    if line.strip() != "" and len(line.strip()) > 2 and len(line.strip()) < 12 and "\"" not in line.strip() and " " not in line:
+                    if line.strip().isascii() and line.strip() != "" and len(line.strip()) > 2 and len(line.strip()) < 12 and "\"" not in line.strip() and " " not in line:
                         if count in nums:
                             badRows.append(line.strip())
                             count += 1
                         else:
                             count += 1
-                except:
+                except Exception as e:
+                    print(e)
                     pass
         return badRows
     except FileNotFoundError:
         print("Please go download rockyou.txt and move to the current directory.\n\nIf within a Kali image, run the commands `cp /usr/share/wordlists/rockyou.txt.gz .' and 'gunzip rockyou.txt'\n\nOr, you can download the file from this link: https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwjf2ceg4vDzAhUEZzABHcQTAI4QFnoECAgQAQ&url=https%3A%2F%2Fgithub.com%2Fbrannondorsey%2Fnaive-hashcat%2Freleases%2Fdownload%2Fdata%2Frockyou.txt&usg=AOvVaw3snAERl1mU6Ccr4WFEazBd")
         sys.exit()
 
+#Custom function to separate each password into it's individual characters
+def getTokens(input):
+    #split all characters
+    tokens = []
+    for i in input:
+        tokens.append(i)
+    return tokens
+
+#Performs character tokenization on the passwords and saves them in a csv file
+def tokenFile(file):
+    print("Creating tokenized files")
+    passwordsCSV = pd.read_csv("{}.csv".format(file), ',', on_bad_lines="skip", engine="python")
+
+    yLabels = passwordsCSV["Label"]
+    allPass = passwordsCSV["Password"].values.astype('U')
+
+    vectorizer = TfidfVectorizer(tokenizer=getTokens, lowercase=False)
+    x = vectorizer.fit_transform(allPass)
+
+    printMeChar = []
+    printMeInt = []
+    num = 0
+    for l in x.toarray():
+        insidePrintMeChar = []
+        insidePrintMeInt = []
+        for i in l:
+            insidePrintMeChar.append(i)
+            insidePrintMeInt.append(i)
+        insidePrintMeChar.append(yLabels[num])
+        if yLabels[num] == "good":
+            insidePrintMeInt.append(1)
+        else:
+            insidePrintMeInt.append(0)
+        printMeChar.append(insidePrintMeChar)
+        printMeInt.append(insidePrintMeInt)
+        num += 1
+    headers = vectorizer.get_feature_names()
+    headers.append("Label")
+
+    with open("{}_tfidf_char.csv".format(file), "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(headers)
+        for line in printMeChar:
+            writer.writerow(line)
+
+    with open("{}_tfidf_int.csv".format(file), "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(headers)
+        for line in printMeInt:
+            writer.writerow(line)
+
 """
     Main function of the program
 """
-def main(num, file):
+def main(num, file, tokenize):
     random.seed(69)
     #create dataset csv
     datasetFile = open("{}.csv".format(file), "w", newline="", encoding="utf-8")
@@ -142,7 +204,7 @@ def main(num, file):
 
         for line in badPassFile:
             try:
-                if line.strip() != "" and len(line.strip()) > 2 and len(line.strip()) < 12 and "\"" not in line.strip() and " " not in line:
+                if line.stip().isascii() and line.strip() != "" and len(line.strip()) > 2 and len(line.strip()) < 12 and "\"" not in line.strip() and " " not in line:
                     badRow = [line.strip(), "bad"]
                     writer.writerow(badRow)
                     count += 1
@@ -187,11 +249,15 @@ def main(num, file):
 
     datasetFile.close()
 
+    if tokenize.lower() == "true":
+        tokenFile(file)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("Create password dataset via given number of passwords from rockyou.txt and auto generated secure passwords")
     parser.add_argument("-n", "--num", help="Number of passwords to include in file", required=True)
     parser.add_argument("-f", "--file", help="Name of dataset file to create", default="passworddataset")
+    parser.add_argument("-t", "--tokenize", help="Convert values to tokenized form", default=False)
     args = parser.parse_args()
     
-    main(args.num, args.file)
+    main(args.num, args.file, args.tokenize)
