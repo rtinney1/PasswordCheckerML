@@ -12,6 +12,7 @@ The data is created with the createPasswordDataSet.py script and uses the rockyo
 Once the data set has been created, users then have the option to create an already tokenized file (required for R script). This gives each type of character a numberical value for the machine learning algorithms to work with. The Python script does this automatically.
 
 Currently, following algorithms are available in the
+
 ####### Python script
 1. Logistic Regression
 2. Random Forest Classifier
