@@ -6,16 +6,16 @@ Uses various machine learning algorithms to determine if passwords are "good" or
 """
 
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.linear_model import LogisticRegression, LinearRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, explained_variance_score, max_error, r2_score, mean_gamma_deviance
+from sklearn.metrics import confusion_matrix, classification_report, accuracy_score, precision_score, recall_score, f1_score, explained_variance_score, max_error, r2_score, mean_gamma_deviance
 from sklearn.exceptions import ConvergenceWarning
 from sklearn.svm import SVR, SVC
-from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neural_network import MLPClassifier
 
 import pandas as pd
 import numpy as np
@@ -26,6 +26,7 @@ import sys
 import os
 import math
 import time
+import textwrap
 
 import warnings
 warnings.simplefilter(action="ignore", category=FutureWarning)
@@ -61,6 +62,14 @@ RESULTS for {}
     #   try/excepts so all those that can be reported, will be reported, without causing an 
     #   error to occur and crash the program
     try:
+        print("\tConfusion Matrix:\n{}".format(confusion_matrix(yTest, ret)))
+    except:
+        pass
+    try:
+        print("\tClassification Report:\n{}".format(classification_report(yTest, ret)))
+    except:
+        pass
+    try:
         print("\tAccuracy Score: {}".format(accuracy_score(yTest, ret)))
     except:
         pass 
@@ -95,6 +104,23 @@ RESULTS for {}
 
     predictMe(modelType, model, vectorizer)
 
+#Neural Network ML Algorithm
+def NN(xTrain, yTrain, xTest, yTest, vectorizer):
+    print("Performing Neural Network\n")
+    mlp = MLPClassifier(hidden_layer_sizes=(10,10,10))
+    fit = mlp.fit(xTrain, yTrain)
+    reviewResults("Neural Network", mlp, fit, xTrain, yTrain, xTest, yTest, vectorizer)
+
+#SVC Grid Search ML Algorithm
+def SVCGridSearch(xTrain, yTrain, xTest, yTest, vectorizer):
+    print("Performing SVC Grid Search\n")
+    svcGrid = {"C": [0.25, 0.5, 1, 2, 4, 8, 16, 32, 64, 128],
+        "gamma": [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
+    }
+    grid = GridSearchCV(SVC(), svcGrid, refit=True)
+    fit = grid.fit(xTrain, yTrain)
+    reviewResults("SVC Grid Search", grid, fit, xTrain, yTrain, xTest, yTest, vectorizer)
+
 #Supprt Vecter Classifier ML Algorithm
 def SVMC(xTrain, yTrain, xTest, yTest, vectorizer):
     print("Performing SVC\n")
@@ -106,22 +132,8 @@ def SVMC(xTrain, yTrain, xTest, yTest, vectorizer):
 def SVMR(xTrain, yTrain, xTest, yTest, vectorizer):
     print("Performing SVR\n")
     svmr = SVR()
-    conYTrain = []
-    #Needed for Support Vector Regression
-    print("Converting 'good' values to 1 and 'bad' values to 0. This means that the closer the value is to 1, the better the password.\n")
-    for x in yTrain:
-        if x == "good":
-            conYTrain.append(1)
-        else:
-            conYTrain.append(0)
-    conYTest = []
-    for x in yTest:
-        if x == "good":
-            conYTest.append(1)
-        else:
-            conYTest.append(0)
-    fit = svmr.fit(xTrain, conYTrain)
-    reviewResults("SVR", svmr, fit, xTrain, conYTrain, xTest, conYTest, vectorizer)
+    fit = svmr.fit(xTrain, yTrain)
+    reviewResults("SVR", svmr, fit, xTrain, yTrain, xTest, yTest, vectorizer)
 
 #K-Nearest Neighbor
 def KNearN(xTrain, yTrain, xTest, yTest, vectorizer):
@@ -134,22 +146,8 @@ def KNearN(xTrain, yTrain, xTest, yTest, vectorizer):
 def LinR(xTrain, yTrain, xTest, yTest, vectorizer):
     print("Performing Linear Regression\n")
     linr = LinearRegression()
-    conYTrain = []
-    #Needed for Linear Regression
-    print("Converting 'good' values to 1 and 'bad' values to 0. This means that the closer the value is to 1, the better the password.\n")
-    for x in yTrain:
-        if x == "good":
-            conYTrain.append(1)
-        else:
-            conYTrain.append(0)
-    conYTest = []
-    for x in yTest:
-        if x == "good":
-            conYTest.append(1)
-        else:
-            conYTest.append(0)
-    fit = linr.fit(xTrain, conYTrain)
-    reviewResults("Linear Regression", linr, fit, xTrain, conYTrain, xTest, conYTest, vectorizer)
+    fit = linr.fit(xTrain, yTrain)
+    reviewResults("Linear Regression", linr, fit, xTrain, yTrain, xTest, yTest, vectorizer)
 
 #Random Forest Classifier ML algorithm
 def RanF(xTrain, yTrain, xTest, yTest, vectorizer):
@@ -195,27 +193,51 @@ def createTrainTestData(path):
 
     return xTrain, yTrain, xTest, yTest, vectorizer
 
+#Converts good and bad to 1 and 0 for Regression algorithms
+def convertToInts(yTrain, yTest):
+    print("Converting 'good' values to 1 and 'bad' values to 0. This means that the closer the value is to 1, the better the password.")
+    print("This step is needed for Linear Regression and Support Vector Regression\n")
+    intYTrain = []
+    intYTest = []
+    for x in yTrain:
+        if x == "good":
+            intYTrain.append(1)
+        else:
+            intYTrain.append(0)
+    for x in yTest:
+        if x == "good":
+            intYTest.append(1)
+        else:
+            intYTest.append(0)
+
+    return intYTrain, intYTest
+
 def forceOptions(value):
     val = int(value)
-    if val >= 0 and val < 8:
+    if val >= 0 and val < 10:
         return val 
     raise argparse.ArgumentTypeError("\nERROR: {} is an invalid option".format(val))    
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser("Use passworddataset.csv with machine learning algorithms to determine whether passwords are good or bad")
-    parser.add_argument("-m", "--ml", help="""Machine Learning algorithm to use
-1\tLogistic Regression
-2\tRandom Forest Classifier
-3\tDecision Tree Classifier
-4\tLinear Regression
-5\tK-Nearest Neighbors
-6\tSupport Vector Regression
-7\tSupport Vector Classifier
-""", required=True, type=forceOptions)
-    parser.add_argument("-f", "--file", help="Dataset to use")
+    parser = argparse.ArgumentParser(prog="Password ML", 
+        formatter_class=argparse.RawDescriptionHelpFormatter, 
+        description=textwrap.dedent("""Use passworddataset.csv with machine learning algorithms to determine whether passwords are good or bad
+Machine Learning algorithm available for use in ml flag
+\t1 - Logistic Regression
+\t2 - Random Forest Classifier
+\t3 - Decision Tree Classifier
+\t4 - Linear Regression
+\t5 - K-Nearest Neighbors
+\t6 - Support Vector Regression
+\t7 - Support Vector Classifier
+\t8 - SVC Grid Search
+\t9 - Neural Network
+"""))
+    parser.add_argument("-m", "--ml", help="Machine Learning algorithm to run dataset through", required=True, type=forceOptions)
+    parser.add_argument("-f", "--file", help="Dataset to use", required=True)
     args = parser.parse_args()
 
-    path = os.path.join(os.getcwd(), args.file)
+    path = args.file
 
     if not os.path.exists(path):
         print("Couldn't find {}".format(args.file))
@@ -223,53 +245,69 @@ if __name__ == "__main__":
 
     xTrain, yTrain, xTest, yTest, vectorizer = createTrainTestData(path)
 
+    if args.ml == 0 or args.ml == 4 or args.ml == 6:
+        intYTrain, intYTest = convertToInts(yTrain, yTest)
+
     if args.ml == 1 or args.ml == 0:
         #Logistic Regression
         start = time.time()
         LogR(xTrain, yTrain, xTest, yTest, vectorizer)
         stop = time.time()
         print("\tTime took to complete: {:.2f} seconds\n".format(stop-start))
-        print("****************************************")
+        print("****************************************\n")
     if args.ml == 2 or args.ml == 0:
         #Random Forest Classifier
         start = time.time()
         RanF(xTrain, yTrain, xTest, yTest, vectorizer)
         stop = time.time()
         print("\tTime took to complete: {:.2f} seconds\n".format(stop-start))
-        print("****************************************")
+        print("****************************************\n")
     if args.ml == 3 or args.ml == 0:
         #Decision Tree Classifier
         start = time.time()
         DecT(xTrain, yTrain, xTest, yTest, vectorizer)
         stop = time.time()
         print("\tTime took to complete: {:.2f} seconds\n".format(stop-start))
-        print("****************************************")
+        print("****************************************\n")
     if args.ml == 4 or args.ml == 0:
         #Linear Regression
         start = time.time()
-        LinR(xTrain, yTrain, xTest, yTest, vectorizer)
+        LinR(xTrain, intYTrain, xTest, intYTest, vectorizer)
         stop = time.time()
         print("\tTime took to complete: {:.2f} seconds\n".format(stop-start))
-        print("****************************************")
+        print("****************************************\n")
     if args.ml == 5 or args.ml == 0:
-        #12+ hours running on predict. Need more RAM/faster GPU
         #K-Nearest Neighbors
         start = time.time()
         KNearN(xTrain, yTrain, xTest, yTest, vectorizer)
         stop = time.time()
         print("\tTime took to complete: {:.2f} seconds\n".format(stop-start))
-        print("****************************************")
+        print("****************************************\n")
     if args.ml == 6 or args.ml == 0:
         #Suport Vector Regression
         start = time.time()
-        SVMR(xTrain, yTrain, xTest, yTest, vectorizer)
+        SVMR(xTrain, intYTrain, xTest, intYTest, vectorizer)
         stop = time.time()
         print("\tTime took to complete: {:.2f} seconds\n".format(stop-start))
-        print("****************************************")
+        print("****************************************\n")
     if args.ml == 7 or args.ml == 0:
         #Support Vector Classifier
         start = time.time()
         SVMC(xTrain, yTrain, xTest, yTest, vectorizer)
         stop = time.time()
         print("\tTime took to complete: {:.2f} seconds\n".format(stop-start))
-        print("****************************************")
+        print("****************************************\n")
+    if args.ml == 8 or args.ml == 0:
+        #SVC Grid Search
+        start = time.time()
+        SVCGridSearch(xTrain, yTrain, xTest, yTest, vectorizer)
+        stop = time.time()
+        print("\tTime took to complete: {:.2f} seconds\n".format(stop-start))
+        print("****************************************\n")
+    if args.ml == 9 or args.ml == 0:
+        #Neural Network
+        start = time.time()
+        NN(xTrain, yTrain, xTest, yTest, vectorizer)
+        stop = time.time()
+        print("\tTime took to complete: {:.2f} seconds\n".format(stop-start))
+        print("****************************************\n")
