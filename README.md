@@ -21,11 +21,13 @@ Currently, the following algorithms are available in the
 5. K-Nearest Neighbors
 6. Support Vector Regression
 7. Support Vector Classifier
+8. SVC Grid Search
+9. Neural Net
 
 ###### R script
 1. Logistic Regression
-2. Decision Tree Model
-3. Linear Regression
+2. Random Forest Classifier
+3. Decision Tree Model
 4. K-Nearest Neighbors
 5. SVM (aka Support Vector Classifier)
 6. SVM Grid Search
@@ -73,9 +75,11 @@ The following values are currently acceptable for the -m flag
 5. K-Nearest Neighbors
 6. Support Vector Regression
 7. Support Vector Classifier
+8. SVC Grid Search
+9. Neural Net
   
 ## passwordML.R
-Need to change the hardcoded locations (line 11 for the tfidf_char and line 12 for the tfidf_int) of the tokenized files created from the createPasswordDataSet.py. This enables the various machine learning algorithms to function correctly and give accurate metrics. 
+Need to change the hardcoded location (line 11 for the tfidf_char) of the tokenized file created from the createPasswordDataSet.py. This enables the various machine learning algorithms to function correctly and give accurate metrics. 
 
-Currently, there are two algorithms (Logistic Regression and Linear Regression) that requires the tfidf_int csv file. They give values and predictions, but currently I am unsure how to read the data. The other algorithms give good plots and confusionMatrix metrics.
+Script reports times (if applicable), confusion matrix, calculated precision, accuracy, recall, and F1 scores, and any plots that were deemed useful. Depending on the size of the dataset used, algorithms can take hours and/or days.
 
