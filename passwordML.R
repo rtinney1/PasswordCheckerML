@@ -9,8 +9,10 @@ library(ranger)
 set.seed(42)
 
 #Loading in CSV (Hardset location values)
-csv <- "C:\\Users\\Randi\\Desktop\\School\\Masters\\CYBR593B\\50000passwords_tfidf_char.csv"
+csv <- "<LOCATION>"
+passCSV <- "testpass.csv"
 base <- read.csv(csv, sep=",", header=TRUE, stringsAsFactors=TRUE)
+predictPass <- read.csv(passCSV, sep=",", header=TRUE, stringsAsFactors=TRUE)
 
 #Creating test/train data for good/bad
 trainIndex <- createDataPartition(base$Label, p=0.70, list=FALSE)
@@ -22,7 +24,6 @@ trainctrl <- trainControl(method = "cv", number = 10, verboseIter = TRUE)
 
 #Logistic Regression
 glm.model <- glm(Label~., data=train, family=binomial)
-summary(glm.model)
 glm.prob <- predict(glm.model, test, type="response")
 glm.pred <- ifelse(glm.prob > 0.5, "good", "bad")
 #confusionMatrix
@@ -41,8 +42,10 @@ precision
 recall <- (TP)/(TP+FN)
 recall
 #F1
-2*((precision*recall)/(precision+recall))
-        
+f1 <- 2*((precision*recall)/(precision+recall))
+f1
+#Predict Passwords
+predict(glm.model, predictPass, type="response")
 
 #Random Forest Classifier
 rf.model <- train(Label~., data=train, method="ranger", 
@@ -52,14 +55,18 @@ rf.model <- train(Label~., data=train, method="ranger",
 rf.model$times
 rf.predict <- predict(rf.model, test)
 confusionMatrix(rf.predict, as.factor(test$Label), mode="prec_recall")
-predict(rf.model, "ADer1234&^!!!dsdsds")
+#Predict Passwords
+predict(rf.model, predictPass)
 
 #Decision Tree Model
 tree.model <- rpart(Label~., data=train)
+tree.plot <- rpart.plot(tree.model)
 tree.plot <- rpart.plot(tree.model, compress = 1, varlen = 5, tweak = 1.2, digits = 2)
 
 tree.predict <- predict(tree.model, test, type="class")
 confusionMatrix(tree.predict, as.factor(test$Label), mode="prec_recall")
+#Predict Passwords
+predict(tree.model, predictPass)
 
 #KNN
 knn.model <- train(Label~., data=train, method="knn",
@@ -69,7 +76,10 @@ knn.model <- train(Label~., data=train, method="knn",
 knn.model$times
 knn.predict <- predict(knn.model, test)
 confusionMatrix(knn.predict, as.factor(test$Label), mode="prec_recall")
-ggplot(data=knn.model, aes(x=knn.model$C, y=knn.model$accuracy))
+plot <- ggplot(data=knn.model, aes(x=knn.model$C, y=knn.model$accuracy))
+print(plot)
+#Predict Passwords
+predict(knn.model, predictPass)
 
 #SVM
 svm.model <- train(Label~., data=train, method="svmRadial",
@@ -79,8 +89,10 @@ svm.model <- train(Label~., data=train, method="svmRadial",
 svm.model$times
 svm.predict <- predict(svm.model, test)
 confusionMatrix(svm.predict, as.factor(test$Label), mode="prec_recall")
-ggplot(data=svm.model, aes(x=svm.model$C, y=svm.model$accuracy))
-
+plot <- ggplot(data=svm.model, aes(x=svm.model$C, y=svm.model$accuracy))
+print(plot)
+#Predict Passwords
+predict(svm.model, predictPass)
 
 #SVM GridSearch
 svmGrid <- expand.grid(sigma = c(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1), C = c(0.25, 0.5, 1, 2, 4, 8, 16, 32, 64, 128))
@@ -89,6 +101,8 @@ svm.model2 <- train(Label~., data=train, method="svmRadial",
 svm.model2$times
 svmModel2Predict <- predict(svm.model2, test)
 confusionMatrix(svmModel2Predict, as.factor(test$Label), mode="prec_recall")
+#Predict Passwords
+predict(svm.model2, predictPass)
 
 #Neural Net
 nnet.model <- train(Label~., data=train, method="nnet",
@@ -98,4 +112,7 @@ nnet.model <- train(Label~., data=train, method="nnet",
 nnet.model$times
 nnet.predict <- predict(nnet.model, test)
 confusionMatrix(nnet.predict, as.factor(test$Label), mode = "prec_recall")
-ggplot(data=nnet.model, aes(x=nnet.model$size, y=nnet.model$decay))
+plot <- ggplot(data=nnet.model, aes(x=nnet.model$size, y=nnet.model$decay))
+print(plot)
+#Predict Passwords
+predict(nnet.model, predictPass)
