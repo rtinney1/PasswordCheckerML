@@ -152,21 +152,13 @@ def tokenFile(file):
     x = vectorizer.fit_transform(allPass)
 
     printMeChar = []
-    printMeInt = []
     num = 0
     for l in x.toarray():
         insidePrintMeChar = []
-        insidePrintMeInt = []
         for i in l:
             insidePrintMeChar.append(i)
-            insidePrintMeInt.append(i)
         insidePrintMeChar.append(yLabels[num])
-        if yLabels[num] == "good":
-            insidePrintMeInt.append(1)
-        else:
-            insidePrintMeInt.append(0)
         printMeChar.append(insidePrintMeChar)
-        printMeInt.append(insidePrintMeInt)
         num += 1
     headers = vectorizer.get_feature_names()
     headers.append("Label")
@@ -175,12 +167,6 @@ def tokenFile(file):
         writer = csv.writer(f)
         writer.writerow(headers)
         for line in printMeChar:
-            writer.writerow(line)
-
-    with open("{}_tfidf_int.csv".format(file), "w", newline="") as f:
-        writer = csv.writer(f)
-        writer.writerow(headers)
-        for line in printMeInt:
             writer.writerow(line)
 
 """
