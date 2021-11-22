@@ -44,7 +44,7 @@ python createPasswordDataSet.py -n NUM -f FILE -t TOKENIZE(True/False)
 ```
 where 
  - NUM is the number of password you want in the created dataset
- - FILE is the name of the file without the .csv portion
+ - FILE is the name of the file to create without the .csv portion
  - TOKENIZE is a True/False value on whether you want the tokenized csv files to be created. Default is False. This will create two extra files along with the FILE.csv. It will create a FILE_tfidf_char.csv and FILE_tfidf_int.csv.
 
 **Note**: The number passed will actually result in that number * 2 passwords. The number indicates the number of "bad" passwords to grab from rockyou.txt and the script will create an equal number of "good" passwords. For example, if you pass 10 to the script, you will get 20 passwords.
