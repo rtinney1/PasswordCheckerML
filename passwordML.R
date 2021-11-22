@@ -30,7 +30,8 @@ glm.pred <- ifelse(glm.prob > 0.5, "good", "bad")
 confmatrix <- table(test$Label, glm.pred)
 confmatrix
 #Accuracy
-(sum(diag(confmatrix)) / sum(confmatrix)*100)
+accuracy <- (sum(diag(confmatrix)) / sum(confmatrix)*100)
+accuracy
 TN = confmatrix[1,1]
 TP = confmatrix[2,2]
 FP = confmatrix[1,2]
