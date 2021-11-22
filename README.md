@@ -79,7 +79,7 @@ The following values are currently acceptable for the -m flag
 9. Neural Net
   
 ## passwordML.R
-Need to change the hardcoded location (line 11 for the tfidf_char) of the tokenized file created from the createPasswordDataSet.py. This enables the various machine learning algorithms to function correctly and give accurate metrics. 
+Need to change the hardcoded location (line 12 for the tfidf_char) of the tokenized file created from the createPasswordDataSet.py. This enables the various machine learning algorithms to function correctly and give accurate metrics. 
 
 Script reports times (if applicable), confusion matrix, calculated precision, accuracy, recall, and F1 scores, and any plots that were deemed useful. Depending on the size of the dataset used, algorithms can take hours and/or days.
 
