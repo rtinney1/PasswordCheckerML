@@ -83,3 +83,4 @@ Need to change the hardcoded location (line 11 for the tfidf_char) of the tokeni
 
 Script reports times (if applicable), confusion matrix, calculated precision, accuracy, recall, and F1 scores, and any plots that were deemed useful. Depending on the size of the dataset used, algorithms can take hours and/or days.
 
+The file testpass.csv  contains tokenized versions of six passwords to test against the models. These six passwords are the same passwords used in the passwordML.py script to ensure a 1-to-1 comparison of algorithms.
