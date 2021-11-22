@@ -51,7 +51,7 @@ where
 
 **Note**: If you pass the word *all* to the script, it will use all viable passwords from rockyou.txt. This creates a dataset of around 2.5 million "good" and "bad" passwords.
 
-**Note**: For the R script to work, you need the tokenized files and need to pass True to the -t flag
+**Note**: For the R script to work, you need the tokenized file and need to pass True to the -t flag
   
 ## passwordML.py
 First install the required modules via
