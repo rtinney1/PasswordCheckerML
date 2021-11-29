@@ -179,7 +179,7 @@ def main(num, file, tokenize):
     writer = csv.writer(datasetFile, delimiter=",")
     writer.writerow(["Password", "Label"])
 
-    if num == "all":
+    if num.lower() == "all":
         count = 0
         #read in rockyou.txt and label all passwords within as 'bad'
         try:
@@ -190,7 +190,7 @@ def main(num, file, tokenize):
 
         for line in badPassFile:
             try:
-                if line.stip().isascii() and line.strip() != "" and len(line.strip()) > 2 and len(line.strip()) < 12 and "\"" not in line.strip() and " " not in line:
+                if line.strip().isascii() and line.strip() != "" and len(line.strip()) > 2 and len(line.strip()) < 12 and "\"" not in line.strip() and " " not in line:
                     badRow = [line.strip(), "bad"]
                     writer.writerow(badRow)
                     count += 1
@@ -204,6 +204,7 @@ def main(num, file, tokenize):
             goodPass = getGoodPassword()
             goodRow = [goodPass, "good"]
             writer.writerow(goodRow)
+            
     else:
         num = int(num)
         print("Grabbing {} bad passwords from rockyou.txt".format(num))
