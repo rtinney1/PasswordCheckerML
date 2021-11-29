@@ -119,12 +119,15 @@ def NN(xTrain, yTrain, xTest, yTest, vectorizer):
     reviewResults("Neural Network", mlp, fit, xTrain, yTrain, xTest, yTest, vectorizer)
 
 #SVC Grid Search ML Algorithm
-def SVCGridSearch(xTrain, yTrain, xTest, yTest, vectorizer):
+def SVCGridSearch(xTrain, yTrain, xTest, yTest, vectorizer, mt):
     myprint("Performing SVC Grid Search\n")
     svcGrid = {"C": [0.25, 0.5, 1, 2, 4, 8, 16, 32, 64, 128],
         "gamma": [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
     }
-    grid = GridSearchCV(SVC(), svcGrid, refit=True)
+    if mt:
+        grid = GridSearchCV(SVC(), svcGrid, refit=True, n_jobs=-1)
+    else:
+        grid = GridSearchCV(SVC(), svcGrid, refit=True)
     fit = grid.fit(xTrain, yTrain)
     reviewResults("SVC Grid Search", grid, fit, xTrain, yTrain, xTest, yTest, vectorizer)
 
@@ -143,23 +146,32 @@ def SVMR(xTrain, yTrain, xTest, yTest, vectorizer):
     reviewResults("SVR", svmr, fit, xTrain, yTrain, xTest, yTest, vectorizer)
 
 #K-Nearest Neighbor
-def KNearN(xTrain, yTrain, xTest, yTest, vectorizer):
+def KNearN(xTrain, yTrain, xTest, yTest, vectorizer, mt):
     myprint("Performing K-Nearest Neighbor\n")
-    knn = KNeighborsClassifier()
+    if mt:
+        knn = KNeighborsClassifier(n_jobs=-1)
+    else:
+        knn = KNeighborsClassifier()
     fit = knn.fit(xTrain, yTrain)
     reviewResults("K-Nearest Neighbor", knn, fit, xTrain, yTrain, xTest, yTest, vectorizer)
 
 #Linear Regression
-def LinR(xTrain, yTrain, xTest, yTest, vectorizer):
+def LinR(xTrain, yTrain, xTest, yTest, vectorizer, mt):
     myprint("Performing Linear Regression\n")
-    linr = LinearRegression()
+    if mt:
+        linr = LinearRegression(n_jobs=-1)
+    else:
+        linr = LinearRegression()
     fit = linr.fit(xTrain, yTrain)
     reviewResults("Linear Regression", linr, fit, xTrain, yTrain, xTest, yTest, vectorizer)
 
 #Random Forest Classifier ML algorithm
-def RanF(xTrain, yTrain, xTest, yTest, vectorizer):
+def RanF(xTrain, yTrain, xTest, yTest, vectorizer, mt):
     myprint("Performing Random Forest Classifier\n")
-    rfc = RandomForestClassifier()
+    if mt:
+        rfc = RandomForestClassifier(n_jobs=-1)
+    else:
+        rfc = RandomForestClassifier()
     fit = rfc.fit(xTrain, yTrain)
     reviewResults("Random Forest Classifier", rfc, fit, xTrain, yTrain, xTest, yTest, vectorizer)
 
@@ -171,9 +183,12 @@ def DecT(xTrain, yTrain, xTest, yTest, vectorizer):
     reviewResults("Decision Tree Classifier", dfc, fit, xTrain, yTrain, xTest, yTest, vectorizer)
 
 #Logistic Regression
-def LogR(xTrain, yTrain, xTest, yTest, vectorizer):
+def LogR(xTrain, yTrain, xTest, yTest, vectorizer, mt):
     myprint("Performing Logistic Regression\n")
-    lgs = LogisticRegression()
+    if mt:
+        lgs = LogisticRegression(n_jobs=-1)
+    else:
+        lgs = LogisticRegression()
     fit = lgs.fit(xTrain, yTrain)
     reviewResults("Logistic Regression", lgs, fit, xTrain, yTrain, xTest, yTest, vectorizer)
 
@@ -243,12 +258,23 @@ Machine Learning algorithm available for use in ml flag
     parser.add_argument("-m", "--ml", help="Machine Learning algorithm to run dataset through", required=True, type=forceOptions)
     parser.add_argument("-f", "--file", help="Dataset to use", required=True)
     parser.add_argument("-o", "--outfile", help="Save output to file")
+    parser.add_argument("-t", "--multithread", help="Indicator to multithread algorithms. If set to True, algorithms use all available processes", default="false")
     args = parser.parse_args()
 
     path = args.file
 
     if args.outfile is not None:
         outfile = args.outfile
+
+    myprint("""*******************************************
+Running Password Machine Learning Program
+*******************************************\n\n""")
+
+    mt = False 
+
+    if args.multithread.lower() == "true":
+        myprint("Multithreading enabled\n")
+        mt = True
 
     if not os.path.exists(path):
         myprint("Couldn't find {}".format(args.file))
@@ -262,14 +288,14 @@ Machine Learning algorithm available for use in ml flag
     if args.ml == 1 or args.ml == 0:
         #Logistic Regression
         start = time.time()
-        LogR(xTrain, yTrain, xTest, yTest, vectorizer)
+        LogR(xTrain, yTrain, xTest, yTest, vectorizer, mt)
         stop = time.time()
         myprint("\tTime took to complete: {:.2f} seconds\n".format(stop-start))
         myprint("****************************************\n")
     if args.ml == 2 or args.ml == 0:
         #Random Forest Classifier
         start = time.time()
-        RanF(xTrain, yTrain, xTest, yTest, vectorizer)
+        RanF(xTrain, yTrain, xTest, yTest, vectorizer, mt)
         stop = time.time()
         myprint("\tTime took to complete: {:.2f} seconds\n".format(stop-start))
         myprint("****************************************\n")
@@ -283,14 +309,14 @@ Machine Learning algorithm available for use in ml flag
     if args.ml == 4 or args.ml == 0:
         #Linear Regression
         start = time.time()
-        LinR(xTrain, intYTrain, xTest, intYTest, vectorizer)
+        LinR(xTrain, intYTrain, xTest, intYTest, vectorizer, mt)
         stop = time.time()
         myprint("\tTime took to complete: {:.2f} seconds\n".format(stop-start))
         myprint("****************************************\n")
     if args.ml == 5 or args.ml == 0:
         #K-Nearest Neighbors
         start = time.time()
-        KNearN(xTrain, yTrain, xTest, yTest, vectorizer)
+        KNearN(xTrain, yTrain, xTest, yTest, vectorizer, mt)
         stop = time.time()
         myprint("\tTime took to complete: {:.2f} seconds\n".format(stop-start))
         myprint("****************************************\n")
@@ -311,7 +337,7 @@ Machine Learning algorithm available for use in ml flag
     if args.ml == 8 or args.ml == 0:
         #SVC Grid Search
         start = time.time()
-        SVCGridSearch(xTrain, yTrain, xTest, yTest, vectorizer)
+        SVCGridSearch(xTrain, yTrain, xTest, yTest, vectorizer, mt)
         stop = time.time()
         myprint("\tTime took to complete: {:.2f} seconds\n".format(stop-start))
         myprint("****************************************\n")
