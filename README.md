@@ -77,6 +77,11 @@ The following values are currently acceptable for the -m flag
 7. Support Vector Classifier
 8. SVC Grid Search
 9. Neural Net
+
+## passwordML_MT.py
+This file is the same as passwordML.py, except all algorithms, that could be, have been multithreaded. According to the sklearn documentation, the algorithms Decision Tree Classifier, SVR, SVC, and Neural Net are multithreaded by default.
+
+The multithreaded portion is set to use all processors available on the machine.
   
 ## passwordML.R
 Need to change the hardcoded location (line 12 for the tfidf_char) of the tokenized file created from the createPasswordDataSet.py. This enables the various machine learning algorithms to function correctly and give accurate metrics. 
