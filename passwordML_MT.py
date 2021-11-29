@@ -32,6 +32,13 @@ import warnings
 warnings.simplefilter(action="ignore", category=FutureWarning)
 warnings.simplefilter(action="ignore", category=ConvergenceWarning)
 
+outfile = "outfile.txt"
+
+def myprint(mystring):
+    print(mystring)
+    with open(outfile, "a") as f:
+        f.write(mystring)
+
 #Uses a list of passwords to verify the ML algorithm works
 def predictMe(modelType, model, vectorizor):
     headers = ["Password", "Label"]
@@ -39,19 +46,19 @@ def predictMe(modelType, model, vectorizor):
     xPredict = vectorizer.transform(predict)
     yPredict = model.predict(xPredict)
 
-    print("\tPrediction of passwords")
+    myprint("\tPrediction of passwords")
     num = 0
     printMe = []
     for password in predict:
         printMe.append([password, yPredict[num]])
         num += 1
 
-    print("\t{}".format(pd.DataFrame(headers, printMe)))
-    print("\n")
+    myprint("\t{}".format(pd.DataFrame(headers, printMe)))
+    myprint("\n")
 
 #Results of the ML algorithms
 def reviewResults(modelType, model, fitted, xTrain, yTrain, xTest, yTest, vectorizer):
-    print(
+    myprint(
     """******************************
 RESULTS for {} 
 ******************************""".format(modelType))
@@ -62,43 +69,43 @@ RESULTS for {}
     #   try/excepts so all those that can be reported, will be reported, without causing an 
     #   error to occur and crash the program
     try:
-        print("\tConfusion Matrix:\n{}".format(confusion_matrix(yTest, ret)))
+        myprint("\tConfusion Matrix:\n{}".format(confusion_matrix(yTest, ret)))
     except:
         pass
     try:
-        print("\tClassification Report:\n{}".format(classification_report(yTest, ret)))
+        myprint("\tClassification Report:\n{}".format(classification_report(yTest, ret)))
     except:
         pass
     try:
-        print("\tAccuracy Score: {}".format(accuracy_score(yTest, ret)))
+        myprint("\tAccuracy Score: {}".format(accuracy_score(yTest, ret)))
     except:
         pass 
     try:
-        print("\tPrecision Score: {}".format(precision_score(yTest, ret, average="binary", pos_label="bad")))
+        myprint("\tPrecision Score: {}".format(precision_score(yTest, ret, average="binary", pos_label="bad")))
     except:
         pass 
     try:    
-        print("\tRecall Score: {}".format(recall_score(yTest, ret, average="binary", pos_label="bad")))
+        myprint("\tRecall Score: {}".format(recall_score(yTest, ret, average="binary", pos_label="bad")))
     except:
         pass
     try:
-        print("\tF1 Score: {}".format(f1_score(yTest, ret, average="binary", pos_label="bad")))
+        myprint("\tF1 Score: {}".format(f1_score(yTest, ret, average="binary", pos_label="bad")))
     except:
         pass
     try:
-        print("\tExplained Variance Score: {}".format(explained_variance_score(yTest, ret)))
+        myprint("\tExplained Variance Score: {}".format(explained_variance_score(yTest, ret)))
     except:
         pass
     try:
-        print("\tMax Error: {}".format(max_error(yTest, ret)))
+        myprint("\tMax Error: {}".format(max_error(yTest, ret)))
     except:
         pass
     try:
-        print("\tR2 Score: {}".format(r2_score(yTest, ret)))
+        myprint("\tR2 Score: {}".format(r2_score(yTest, ret)))
     except:
         pass 
     try:
-        print("\tMean Gamma Deviance: {}".format(mean_gamma_deviance(yTest, ret)))
+        myprint("\tMean Gamma Deviance: {}".format(mean_gamma_deviance(yTest, ret)))
     except:
         pass
 
@@ -106,14 +113,14 @@ RESULTS for {}
 
 #Neural Network ML Algorithm
 def NN(xTrain, yTrain, xTest, yTest, vectorizer):
-    print("Performing Neural Network\n")
+    myprint("Performing Neural Network\n")
     mlp = MLPClassifier(hidden_layer_sizes=(10,10,10))
     fit = mlp.fit(xTrain, yTrain)
     reviewResults("Neural Network", mlp, fit, xTrain, yTrain, xTest, yTest, vectorizer)
 
 #SVC Grid Search ML Algorithm
 def SVCGridSearch(xTrain, yTrain, xTest, yTest, vectorizer):
-    print("Performing SVC Grid Search\n")
+    myprint("Performing SVC Grid Search\n")
     svcGrid = {"C": [0.25, 0.5, 1, 2, 4, 8, 16, 32, 64, 128],
         "gamma": [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
     }
@@ -123,49 +130,49 @@ def SVCGridSearch(xTrain, yTrain, xTest, yTest, vectorizer):
 
 #Supprt Vecter Classifier ML Algorithm
 def SVMC(xTrain, yTrain, xTest, yTest, vectorizer):
-    print("Performing SVC\n")
+    myprint("Performing SVC\n")
     svmc = SVC()
     fit = svmc.fit(xTrain, yTrain)
     reviewResults("SVC", svmc, fit, xTrain, yTrain, xTest, yTest, vectorizer)
 
 #Support Vector Regression ML algorithm
 def SVMR(xTrain, yTrain, xTest, yTest, vectorizer):
-    print("Performing SVR\n")
+    myprint("Performing SVR\n")
     svmr = SVR()
     fit = svmr.fit(xTrain, yTrain)
     reviewResults("SVR", svmr, fit, xTrain, yTrain, xTest, yTest, vectorizer)
 
 #K-Nearest Neighbor
 def KNearN(xTrain, yTrain, xTest, yTest, vectorizer):
-    print("Performing K-Nearest Neighbor\n")
+    myprint("Performing K-Nearest Neighbor\n")
     knn = KNeighborsClassifier(n_jobs=-1)
     fit = knn.fit(xTrain, yTrain)
     reviewResults("K-Nearest Neighbor", knn, fit, xTrain, yTrain, xTest, yTest, vectorizer)
 
 #Linear Regression
 def LinR(xTrain, yTrain, xTest, yTest, vectorizer):
-    print("Performing Linear Regression\n")
+    myprint("Performing Linear Regression\n")
     linr = LinearRegression(n_jobs=-1)
     fit = linr.fit(xTrain, yTrain)
     reviewResults("Linear Regression", linr, fit, xTrain, yTrain, xTest, yTest, vectorizer)
 
 #Random Forest Classifier ML algorithm
 def RanF(xTrain, yTrain, xTest, yTest, vectorizer):
-    print("Performing Random Forest Classifier\n")
+    myprint("Performing Random Forest Classifier\n")
     rfc = RandomForestClassifier(n_jobs=-1)
     fit = rfc.fit(xTrain, yTrain)
     reviewResults("Random Forest Classifier", rfc, fit, xTrain, yTrain, xTest, yTest, vectorizer)
 
 #Decision Tree Classifier
 def DecT(xTrain, yTrain, xTest, yTest, vectorizer):
-    print("Performing Decision Tree Classifier\n")
+    myprint("Performing Decision Tree Classifier\n")
     dfc = DecisionTreeClassifier()
     fit = dfc.fit(xTrain, yTrain)
     reviewResults("Decision Tree Classifier", dfc, fit, xTrain, yTrain, xTest, yTest, vectorizer)
 
 #Logistic Regression
 def LogR(xTrain, yTrain, xTest, yTest, vectorizer):
-    print("Performing Logistic Regression\n")
+    myprint("Performing Logistic Regression\n")
     lgs = LogisticRegression(n_jobs=-1)
     fit = lgs.fit(xTrain, yTrain)
     reviewResults("Logistic Regression", lgs, fit, xTrain, yTrain, xTest, yTest, vectorizer)
@@ -180,7 +187,7 @@ def getTokens(input):
 
 #Creates the xTrain, yTrain, xTest, yTest data for the models
 def createTrainTestData(path):
-    print("Creating testing and training data\n")
+    myprint("Creating testing and training data\n")
     passwordsCSV = pd.read_csv(path, ',', on_bad_lines="skip", engine="python")
 
     yLabels = passwordsCSV["Label"]
@@ -195,8 +202,8 @@ def createTrainTestData(path):
 
 #Converts good and bad to 1 and 0 for Regression algorithms
 def convertToInts(yTrain, yTest):
-    print("Converting 'good' values to 1 and 'bad' values to 0. This means that the closer the value is to 1, the better the password.")
-    print("This step is needed for Linear Regression and Support Vector Regression\n")
+    myprint("Converting 'good' values to 1 and 'bad' values to 0. This means that the closer the value is to 1, the better the password.")
+    myprint("This step is needed for Linear Regression and Support Vector Regression\n")
     intYTrain = []
     intYTest = []
     for x in yTrain:
@@ -235,12 +242,16 @@ Machine Learning algorithm available for use in ml flag
 """))
     parser.add_argument("-m", "--ml", help="Machine Learning algorithm to run dataset through", required=True, type=forceOptions)
     parser.add_argument("-f", "--file", help="Dataset to use", required=True)
+    parser.add_argument("-o", "--outfile", help="Save output to file")
     args = parser.parse_args()
 
     path = args.file
 
+    if args.outfile is not None:
+        outfile = args.outfile
+
     if not os.path.exists(path):
-        print("Couldn't find {}".format(args.file))
+        myprint("Couldn't find {}".format(args.file))
         sys.exit()
 
     xTrain, yTrain, xTest, yTest, vectorizer = createTrainTestData(path)
@@ -253,61 +264,61 @@ Machine Learning algorithm available for use in ml flag
         start = time.time()
         LogR(xTrain, yTrain, xTest, yTest, vectorizer)
         stop = time.time()
-        print("\tTime took to complete: {:.2f} seconds\n".format(stop-start))
-        print("****************************************\n")
+        myprint("\tTime took to complete: {:.2f} seconds\n".format(stop-start))
+        myprint("****************************************\n")
     if args.ml == 2 or args.ml == 0:
         #Random Forest Classifier
         start = time.time()
         RanF(xTrain, yTrain, xTest, yTest, vectorizer)
         stop = time.time()
-        print("\tTime took to complete: {:.2f} seconds\n".format(stop-start))
-        print("****************************************\n")
+        myprint("\tTime took to complete: {:.2f} seconds\n".format(stop-start))
+        myprint("****************************************\n")
     if args.ml == 3 or args.ml == 0:
         #Decision Tree Classifier
         start = time.time()
         DecT(xTrain, yTrain, xTest, yTest, vectorizer)
         stop = time.time()
-        print("\tTime took to complete: {:.2f} seconds\n".format(stop-start))
-        print("****************************************\n")
+        myprint("\tTime took to complete: {:.2f} seconds\n".format(stop-start))
+        myprint("****************************************\n")
     if args.ml == 4 or args.ml == 0:
         #Linear Regression
         start = time.time()
         LinR(xTrain, intYTrain, xTest, intYTest, vectorizer)
         stop = time.time()
-        print("\tTime took to complete: {:.2f} seconds\n".format(stop-start))
-        print("****************************************\n")
+        myprint("\tTime took to complete: {:.2f} seconds\n".format(stop-start))
+        myprint("****************************************\n")
     if args.ml == 5 or args.ml == 0:
         #K-Nearest Neighbors
         start = time.time()
         KNearN(xTrain, yTrain, xTest, yTest, vectorizer)
         stop = time.time()
-        print("\tTime took to complete: {:.2f} seconds\n".format(stop-start))
-        print("****************************************\n")
+        myprint("\tTime took to complete: {:.2f} seconds\n".format(stop-start))
+        myprint("****************************************\n")
     if args.ml == 6 or args.ml == 0:
         #Suport Vector Regression
         start = time.time()
         SVMR(xTrain, intYTrain, xTest, intYTest, vectorizer)
         stop = time.time()
-        print("\tTime took to complete: {:.2f} seconds\n".format(stop-start))
-        print("****************************************\n")
+        myprint("\tTime took to complete: {:.2f} seconds\n".format(stop-start))
+        myprint("****************************************\n")
     if args.ml == 7 or args.ml == 0:
         #Support Vector Classifier
         start = time.time()
         SVMC(xTrain, yTrain, xTest, yTest, vectorizer)
         stop = time.time()
-        print("\tTime took to complete: {:.2f} seconds\n".format(stop-start))
-        print("****************************************\n")
+        myprint("\tTime took to complete: {:.2f} seconds\n".format(stop-start))
+        myprint("****************************************\n")
     if args.ml == 8 or args.ml == 0:
         #SVC Grid Search
         start = time.time()
         SVCGridSearch(xTrain, yTrain, xTest, yTest, vectorizer)
         stop = time.time()
-        print("\tTime took to complete: {:.2f} seconds\n".format(stop-start))
-        print("****************************************\n")
+        myprint("\tTime took to complete: {:.2f} seconds\n".format(stop-start))
+        myprint("****************************************\n")
     if args.ml == 9 or args.ml == 0:
         #Neural Network
         start = time.time()
         NN(xTrain, yTrain, xTest, yTest, vectorizer)
         stop = time.time()
-        print("\tTime took to complete: {:.2f} seconds\n".format(stop-start))
-        print("****************************************\n")
+        myprint("\tTime took to complete: {:.2f} seconds\n".format(stop-start))
+        myprint("****************************************\n")
