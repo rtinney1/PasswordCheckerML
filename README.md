@@ -61,9 +61,13 @@ pip install -r requirements.txt
 
 then use the command
 ```
-python passwordML.py -m ML -f FILE
+python passwordML.py -m ML -f FILE -o OUTPUT_FILE -t MULTITHREAD
 ```
-where ML is the number corresponding to the Machine Learning algorithm you want to use and f is the full file name of the dataset. 
+where 
+  - ML is the number corresponding to the Machine Learning algorithm you want to use 
+  - f is the full file name of the dataset
+  - o is the file you wish to save output to. Default is output.txt
+  - t is True/False value on whether you want the algorithms to be multithreaded. If True, the algorithms will use all available processors
 
 The following values are currently acceptable for the -m flag
 
@@ -77,11 +81,6 @@ The following values are currently acceptable for the -m flag
 7. Support Vector Classifier
 8. SVC Grid Search
 9. Neural Net
-
-## passwordML_MT.py
-This file is the same as passwordML.py, except all algorithms, that could be, have been multithreaded. According to the sklearn documentation, the algorithms Decision Tree Classifier, SVR, SVC, and Neural Net are multithreaded by default.
-
-The multithreaded portion is set to use all processors available on the machine.
   
 ## passwordML.R
 Need to change the hardcoded location (line 12 for the tfidf_char) of the tokenized file created from the createPasswordDataSet.py. This enables the various machine learning algorithms to function correctly and give accurate metrics. 
