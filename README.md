@@ -49,7 +49,7 @@ where
 
 **Note**: The number passed will actually result in that number * 2 passwords. The number indicates the number of "bad" passwords to grab from rockyou.txt and the script will create an equal number of "good" passwords. For example, if you pass 10 to the script, you will get 20 passwords.
 
-**Note**: If you pass the word *all* to the script, it will use all viable passwords from rockyou.txt. This creates a dataset of around 2.5 million "good" and "bad" passwords.
+**Note**: If you pass the word *all* to the script, it will use all viable passwords from rockyou.txt and an equal number of good passwords
 
 **Note**: For the R script to work, you need the tokenized file and need to pass True to the -t flag
   
