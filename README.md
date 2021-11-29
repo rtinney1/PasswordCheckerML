@@ -65,9 +65,9 @@ python passwordML.py -m ML -f FILE -o OUTPUT_FILE -t MULTITHREAD
 ```
 where 
   - ML is the number corresponding to the Machine Learning algorithm you want to use 
-  - f is the full file name of the dataset
-  - o is the file you wish to save output to. Default is output.txt
-  - t is True/False value on whether you want the algorithms to be multithreaded. If True, the algorithms will use all available processors
+  - FILE is the full file name of the dataset
+  - OUTPUT_FILE is the file you wish to save output to. Default is output.txt
+  - MULTITHREAD is True/False value on whether you want the algorithms to be multithreaded. If True, the algorithms will use all available processors
 
 The following values are currently acceptable for the -m flag
 
