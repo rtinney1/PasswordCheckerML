@@ -37,3 +37,5 @@ The program will not allow you to check a password unless it meets the following
 Once a password meets the criteria, the user can press the Check button to see what the machine learning algorithm predicts. 
 
 The machine learning algorithm in use is Logistic Regression
+
+Currently, the dataset is a hardset value on line 32. Please change to the dataset created via the createPasswordDataSet.py script
