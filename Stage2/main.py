@@ -60,7 +60,6 @@ def home():
 @app.route("/checkPass/", methods=["POST"])
 def checkPass():
     password = request.form["password"]
-    print(password)
 
     results = lgr.checkPassword(password)
     return render_template("index.html", results=results)
