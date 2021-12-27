@@ -29,7 +29,7 @@ class LogR():
 
     def createTrainTestData(self):
         print("Creating testing and training data\n")
-        passwordsCSV = pd.read_csv("50000passwords.csv", ',', on_bad_lines="skip", engine="python")
+        passwordsCSV = pd.read_csv("<DATASET>.csv", ',', on_bad_lines="skip", engine="python")
 
         yLabels = passwordsCSV["Label"]
         allPass = passwordsCSV["Password"].values.astype('U')
