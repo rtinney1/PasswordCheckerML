@@ -38,4 +38,4 @@ Once a password meets the criteria, the user can press the Check button to see w
 
 The machine learning algorithm in use is Logistic Regression
 
-Currently, the dataset is a hardset value on line 32. Please change to the dataset created via the createPasswordDataSet.py script
+Currently, the dataset is a hardset value on line 32 in main.py. Please change to the dataset created via the createPasswordDataSet.py script
