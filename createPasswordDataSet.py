@@ -21,7 +21,7 @@ warnings.simplefilter(action="ignore", category=FutureWarning)
 charsUpper = list(string.ascii_uppercase)
 charsLower = list(string.ascii_lowercase)
 digits = list(string.digits)
-specialChars = list("!@#$%^&*()")
+specialChars = list("!@#$%^&*()|/\-_+ <>[]")
 
 contain = ["charsUpper", "charsLower", "digits", "specialChars"]
 
@@ -100,10 +100,27 @@ def getGoodPassword():
 
     random.shuffle(password)
 
-    #print("Length of created password: {}".format(len(password)))
+    message = "".join(password)
+    return message
+    """
+    charMapping = {
+        'a': ['4', '@', '/-\\'], 'c': ['('], 'd': ['|)'], 'e': ['3'],
+        'f': ['ph'], 'h': [']-[', '|-|'], 'i': ['1', '!', '|'], 'k': [']<'],
+        'o': ['0'], 's': ['$', '5'], 't': ['7', '+'], 'u': ['|_|'],
+        'v': ['\\/']}
+    leetspeak = ''
+    for char in message:  # Check each character:
+        # There is a 70% chance we change the character to leetspeak.
+        if char.lower() in charMapping and random.random() <= 0.70:
+            possibleLeetReplacements = charMapping[char.lower()]
+            leetReplacement = random.choice(possibleLeetReplacements)
+            leetspeak = leetspeak + leetReplacement
+        else:
+            # Don't translate this character:
+            leetspeak = leetspeak + char
 
-    return "".join(password)
-
+    return leetspeak
+    """
 """
 getBadPasswords reads in an array of numbers and iterates through the password file rockyou.txt 
     and appends the found password to an array. The function then returns the array
@@ -152,13 +169,21 @@ def tokenFile(file):
     x = vectorizer.fit_transform(allPass)
 
     printMeChar = []
+    printMeInt = []
     num = 0
     for l in x.toarray():
         insidePrintMeChar = []
+        insidePrintMeInt = []
         for i in l:
             insidePrintMeChar.append(i)
+            insidePrintMeInt.append(i)
         insidePrintMeChar.append(yLabels[num])
+        if yLabels[num] == "good":
+            insidePrintMeInt.append(1)
+        else:
+            insidePrintMeInt.append(0)
         printMeChar.append(insidePrintMeChar)
+        printMeInt.append(insidePrintMeInt)
         num += 1
     headers = vectorizer.get_feature_names()
     headers.append("Label")
@@ -167,6 +192,12 @@ def tokenFile(file):
         writer = csv.writer(f)
         writer.writerow(headers)
         for line in printMeChar:
+            writer.writerow(line)
+
+    with open("{}_tfidf_int.csv".format(file), "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(headers)
+        for line in printMeInt:
             writer.writerow(line)
 
 """
@@ -179,7 +210,7 @@ def main(num, file, tokenize):
     writer = csv.writer(datasetFile, delimiter=",")
     writer.writerow(["Password", "Label"])
 
-    if num.lower() == "all":
+    if num == "all":
         count = 0
         #read in rockyou.txt and label all passwords within as 'bad'
         try:
@@ -190,7 +221,7 @@ def main(num, file, tokenize):
 
         for line in badPassFile:
             try:
-                if line.strip().isascii() and line.strip() != "" and len(line.strip()) > 2 and len(line.strip()) < 12 and "\"" not in line.strip() and " " not in line:
+                if line.stip().isascii() and line.strip() != "" and len(line.strip()) > 2 and len(line.strip()) < 12 and "\"" not in line.strip() and " " not in line:
                     badRow = [line.strip(), "bad"]
                     writer.writerow(badRow)
                     count += 1
@@ -204,7 +235,6 @@ def main(num, file, tokenize):
             goodPass = getGoodPassword()
             goodRow = [goodPass, "good"]
             writer.writerow(goodRow)
-            
     else:
         num = int(num)
         print("Grabbing {} bad passwords from rockyou.txt".format(num))
@@ -244,7 +274,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser("Create password dataset via given number of passwords from rockyou.txt and auto generated secure passwords")
     parser.add_argument("-n", "--num", help="Number of passwords to include in file", required=True)
     parser.add_argument("-f", "--file", help="Name of dataset file to create", default="passworddataset")
-    parser.add_argument("-t", "--tokenize", help="Convert values to tokenized form", default=False)
+    parser.add_argument("-t", "--tokenize", help="Convert values to tokenized form", default="false")
     args = parser.parse_args()
     
     main(args.num, args.file, args.tokenize)
