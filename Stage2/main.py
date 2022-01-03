@@ -1,3 +1,12 @@
+"""
+File: main.py
+Creator: Randi Tinney
+Date Created: 27 Dec 2021
+Creates a flask webserver for password checking/creating. 
+Uses Logistic Regression to see if passwords are strong based off of good/bad dataset. 
+Searches through RockYou2021 password drop to see if password exists
+"""
+
 from flask import Flask, render_template, request
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import train_test_split
@@ -14,6 +23,9 @@ import threading
 
 app = Flask(__name__, template_folder="templates")
 
+"""
+Class for logistic regression methods. Ensures machine learning algorithm is only trained once at the start of the program
+"""
 class LogR():
     def __init__(self):
         self.createTrainTestData()
@@ -45,6 +57,7 @@ class LogR():
 
         self.xTrain, self.xTest, self.yTrain, self.yTest = train_test_split(x, yLabels, test_size=0.3, random_state=42)   
 
+    #Checks to see if passed password is good or bad
     def checkPassword(self, password):
         predict = []
         predict.append(password)
@@ -54,6 +67,9 @@ class LogR():
 
         return yPredict[0]
 
+"""
+Class for the password checking/creating thread. Helps the website update user with current progress
+"""
 class PasswordThread(threading.Thread):
     def __init__(self, log, lgr, runner="create", password="", caps=False, backnum=False, frontnum=False, special=False, leet=False):
         self.progress = 0
