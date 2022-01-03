@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+ <!-- Latest compiled and minified CSS -->
+ <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+
+ <!-- jQuery library -->
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+ 
+ <!-- Latest compiled JavaScript -->
+ <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script> 
+
+ <script>
+    function checkProgress() 
+    {
+        var taskID = document.getElementById("threadID").value;
+        console.log(taskID);
+
+        if(taskID != -1)
+        {
+            $.ajax({
+                url:"/progress/",
+                type: "POST",
+                datatype: 'json',
+                data: "threadID="+threadID.value,
+
+                success: function(response){
+                    if(response["progress"] < 100)
+                    {
+                        document.getElementById("progress").value = response["progress"];
+                        document.getElementById("response").innerText = response["response"];
+                        document.getElementById("rockyou").innerText = response["rockYouRes"];
+
+                        var results = response["results"];
+                        var ul = document.getElementById("results");
+                        ul.innerHTML = "";
+                        for (var i = 0; i < results.length; i++)
+                        {
+                            var li = document.createElement("li");
+                            li.innerText = results[i][0]+" - "+results[i][1];
+                            ul.appendChild(li);
+                        }
+                    }
+                    else
+                    {
+                        document.getElementById("progress").value = response["progress"];
+                        document.getElementById("response").innerText = response["response"];
+                        document.getElementById("rockyou").innerText = response["rockYouRes"];
+                        var results = response["results"];
+                        var ul = document.getElementById("results");
+                        ul.innerHTML = "";
+                        for (var i = 0; i < results.length; i++)
+                        {
+                            var li = document.createElement("li");
+                            li.innerText = results[i][0]+" - "+results[i][1];
+                            ul.appendChild(li);
+                        }
+                        document.getElementById("threadID").value = -1;
+                    }
+                    console.log(response);
+                },
+                error: function(error){
+                    console.log(error);
+                }
+
+            });
+
+        }
+    }
+
+    function start()
+    {
+        setInterval(checkProgress, 1000);
+    }
+ </script>
+<style>
+ul {
+  list-style: none;
+}
+</style>
+<body onload="start()">
+    <div class="container">
+        <div class="row">
+            <div class="col text-center">
+                <h1>Machine Learning Password Creator</h1>
+            </div>
+        </div>
+        <br/>
+        <br/>
+        <div class="row text-center">
+            <button onclick="location.href='/checker/'">Check Password</button>
+            <button onclick="location.href='/creator/'">Create Password</button>
+        </div>
+        <br/>
+        <div class="row">
+            <form action="/createPass/" method="post">
+                <div class="row">
+                    <div class="col text-center">
+                        <input type="checkbox" id="caps" name="caps" value="caps" checked>
+                        <label for="caps">Random upper/lowercase change</label>
+                        <input type="checkbox" id="backNum" name="backNum" value="backNum" checked>
+                        <label for="backNum">Numbers at end of string</label>
+                        <input type="checkbox" id="frontNum" name="frontNum" value="frontNum" checked>
+                        <label for="frontNum">Numbers at front of string</label>
+                        <input type="checkbox" id="special" name="special" value="special" checked>
+                        <label for="special">Special characters randomly throughout string</label>
+                        <input type="checkbox" id="leet" name="leet" value="leet" checked>
+                        <label for="leet">L33t characters</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col text-center">
+                        <label>Insert word/phrase to create password</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col text-center">
+                        <input id="password" name="password">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col text-center">
+                        <button type="submit" id="checker">Create</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col text-center">
+                <label id="response"></label><br>
+                <progress id="progress" value="0" max="100"></progress>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col text-center">
+                <h2>Results</h2>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col text-center">
+                <label id="rockyou"></label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col text-center">
+                <ol id="results">
+                </ol>
+            </div>
+        </div>
+        <input type="hidden" id="threadID" value="{{ threadID }}">
+    </div>
+</body>
+</html>
