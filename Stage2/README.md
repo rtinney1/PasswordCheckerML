@@ -29,18 +29,12 @@ You can access the web application via http://127.0.0.1:5000 in a browser.
 
 Download the RockYou2021 dataset [here](https://download2390.mediafire.com/zuxu7c9mngdg/rjt6ytgs9b3scht/RockYou2021.txt.gz) 
 The folder structure for this project must look like
-<Directory>
-  |
+- Directory
   - templates
-    |
     - creator.html
-    |
     - checker.html
-  |
   - RockYou2021.txt
-    |
     - realuniq.lst
-  |
   - main.py
   
 ## Checker
