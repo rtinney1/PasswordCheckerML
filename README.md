@@ -41,3 +41,5 @@ The following questions are explored:
 
 1. Can machine learning algorithms be applied to actual applications
 2. Is a static ruleset a better judge of password strength than a machine learning algorithm
+3. Can a machine learning algorithm be used to create a good password
+4. If so, is that password actually secure
