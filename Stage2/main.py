@@ -227,7 +227,7 @@ class PasswordThread(threading.Thread):
         results = self.lgr.checkPassword(self.password)
         return results
 
-    def findInRockYou2021(word):
+    def findInRockYou2021(self, word):
         #fileLocks[fileNum].acquire()
         length = len(word)
         start = word[0]
@@ -320,8 +320,11 @@ def createPass():
         leet = True
 
     if len(password) > 0:
+        now = datetime.now()
+        logText = []
+        logText.append("{} - Testing phrase: {}\n".format(now.strftime("%d/%m/%Y %H:%M:%S.%f"), password.rstrip()))
         threadID = random.randint(1,99)
-        threads[threadID] = PasswordThread(log=logMe, runner="create", lgr=lgr, password=password, caps=caps, backnum=backNum, frontnum=frontNum, special=special, leet=leet)
+        threads[threadID] = PasswordThread(log=logMe, logText=logText, runner="create", lgr=lgr, password=password, caps=caps, backnum=backNum, frontnum=frontNum, special=special, leet=leet)
         threads[threadID].start()
     else:
         threadID = -1
