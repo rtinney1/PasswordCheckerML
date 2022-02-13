@@ -41,6 +41,7 @@ The folder structure for this project must look like
     - rockyou2021_part2_8.txt
     - (and so on. There should be 24,500 files in this folder)
   - main.py
+  - websitedataset2.csv
   
 ## Checker
 The program will not allow you to check a password unless it meets the following criteria:
