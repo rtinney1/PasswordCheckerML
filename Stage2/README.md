@@ -1,4 +1,6 @@
 # PasswordCheckerML
+
+## Setting up the environment
 Machine Learning programs to verify whether a password is good or bad. 
 
 First install the required modules via
@@ -43,7 +45,8 @@ The folder structure for this project must look like
   - main.py
   - websitedataset2.csv
   
-## Checker
+## Webpages
+### Checker
 The program will not allow you to check a password unless it meets the following criteria:
   - More than 8 characters long
   - Contains uppercase characters
@@ -53,11 +56,21 @@ The program will not allow you to check a password unless it meets the following
 
 Once a password meets the criteria, the user can press the Check button to see what the machine learning algorithm predicts. It will also search through the RockYou2021 password drop to see if the password is located in the file as well.
   
-## Creator
-The program will allow the user to enter in a password, phrase, word, or series of characters/numbers and attempts to create a strong password from what was entered. Once the machine learning algorithm determines that the created password is strong, the program tries to find the created password within the RockYou2021 password drop. 
+### Creator
+The program will allow the user to enter in a password, phrase, word, or series of characters/numbers and attempts to create a strong password from what was entered. Once the machine learning algorithm determines that the created password is strong, the program tries to find the created password within the RockYou2021 password drop.
   
 A log of these created passwords are stored in passwordlog.log
 
 The machine learning algorithm in use is Logistic Regression
 
-Currently, the dataset is a hardset value on line 32 in main.py. Please change to the dataset created via the createPasswordDataSet.py script
+Currently, the dataset is a hardset value on line 32 in main.py. This dataset (websitedataset2.csv) is currently found within the repo. If you want to generate a new dataset, please change to the dataset created via the createPasswordDataSet.py script
+
+## Expirement
+The main expirement was to see if the machine learning algorithm could create strong passwords from memorable passphrases. 
+
+Once the environment is set up, run 
+
+```
+python testPassphrase.py
+```
+This will pass 150 randomly generated words (located in expirmentPass.txt) to the webserver, 100 times.
