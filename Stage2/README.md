@@ -28,13 +28,18 @@ flask run
 You can access the web application via http://127.0.0.1:5000 in a browser.
 
 Download the RockYou2021 dataset [here](https://download2390.mediafire.com/zuxu7c9mngdg/rjt6ytgs9b3scht/RockYou2021.txt.gz) 
+
+Once the RockYou2021 dataset is downloaded, run the python script `splitme.py` to split the RockYou2021, realuniq.lst, into it's separate parts. To run the script, make sure the `splitme.py` text file is within the same directory as the realuniq.list file (please refer to the required folder structure below). This greatly reduces the amount of time it takes to search through the entire dataset because it separates the data by the first character of the string and the number of characters within the string.
+
 The folder structure for this project must look like
 - Directory
   - templates
     - creator.html
     - checker.html
   - RockYou2021.txt
-    - realuniq.lst
+    - rockyou2021_part1_8.txt
+    - rockyou2021_part2_8.txt
+    - (and so on. There should be 24,500 files in this folder)
   - main.py
   
 ## Checker
