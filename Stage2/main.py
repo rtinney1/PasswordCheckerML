@@ -150,23 +150,22 @@ class PasswordThread(threading.Thread):
             
             rockYouRes = ""
 
-            for x in range(0, 100):
-                strongPass = self.createPasswords(self.password)
-                
-                if strongPass != "":
-                    self.response = "Searching for password in RockYou2021"
-                    self.progress = 50
-                    ret = self.findInRockYou2021(strongPass)
-                    if ret:
-                        now = datetime.now()
-                        self.logText.append("{} - {} was found in the RockYou2021.txt password drop\n".format(now.strftime("%d/%m/%Y %H:%M:%S.%f"), strongPass))
-                        self.rockYouRes = "{} was found in the RockYou2021.txt password drop".format(strongPass)
-                    else:
-                        now = datetime.now()
-                        self.logText.append("{} - {} was NOT found in the RockYou2021.txt password drop\n".format(now.strftime("%d/%m/%Y %H:%M:%S.%f"), strongPass))
-                        self.rockYouRes = "{} was NOT found in the RockYou2021.txt password drop".format(strongPass)
+            strongPass = self.createPasswords(self.password)
+            
+            if strongPass != "":
+                self.response = "Searching for password in RockYou2021"
+                self.progress = 50
+                ret = self.findInRockYou2021(strongPass)
+                if ret:
+                    now = datetime.now()
+                    self.logText.append("{} - {} was found in the RockYou2021.txt password drop\n".format(now.strftime("%d/%m/%Y %H:%M:%S.%f"), strongPass))
+                    self.rockYouRes = "{} was found in the RockYou2021.txt password drop".format(strongPass)
                 else:
-                    self.rockYouRes = "No good password was able to be created"
+                    now = datetime.now()
+                    self.logText.append("{} - {} was NOT found in the RockYou2021.txt password drop\n".format(now.strftime("%d/%m/%Y %H:%M:%S.%f"), strongPass))
+                    self.rockYouRes = "{} was NOT found in the RockYou2021.txt password drop".format(strongPass)
+            else:
+                self.rockYouRes = "No good password was able to be created"
 
             write_to_file(self.log, self.logText)
             #print(self.rockYouRes)
