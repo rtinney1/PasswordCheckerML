@@ -18,6 +18,7 @@ import pandas as pd
 
 import os
 import random
+import re
 import threading
 
 
@@ -68,10 +69,27 @@ class LogR():
         return yPredict[0]
 
 """
+This function locks and releases the log file so multiple
+threads do no write to it at the same time
+"""
+loglock = threading.Lock()
+
+def write_to_file(file, text):
+    #print("Waiting to write to log")
+    loglock.acquire() # thread blocks at this line until it can obtain lock
+    #print("Writing to log")
+    # in this section, only one thread can be present at a time.
+    for t in text:
+        with open(file, "a") as f:
+            f.write(t)
+
+    loglock.release()
+
+"""
 Class for the password checking/creating thread. Helps the website update user with current progress
 """
 class PasswordThread(threading.Thread):
-    def __init__(self, log, lgr, runner="create", password="", caps=False, backnum=False, frontnum=False, special=False, leet=False):
+    def __init__(self, log, lgr, logText, runner="create", password="", caps=False, backnum=False, frontnum=False, special=False, leet=False):
         self.progress = 0
         self.response = ""
 
@@ -84,11 +102,29 @@ class PasswordThread(threading.Thread):
         self.frontnum = frontnum
         self.special = special
         self.leet = leet
+        self.logText = logText
 
         self.rockYouRes = ""
         self.results = ""
 
         super().__init__()
+
+    def createPasswords(self, word):
+        i = 0
+        password = word
+        while True:
+            i += 1
+            result = self.lgr.checkPassword(password)
+            self.results.append([password, result])
+
+            if result == "good":
+                now = datetime.now()
+                self.logText.append("{} - LogR found {} to be a good password\n".format(now.strftime("%d/%m/%Y %H:%M:%S.%f"), password))
+                return password
+            if i == 100:
+                break
+            password = self.englishToLeetspeak(password)
+        return ""
 
     def run(self):
         if self.runner == "check":
@@ -106,43 +142,34 @@ class PasswordThread(threading.Thread):
             self.response = "Done"
             self.progress = 100
         elif self.runner == "create":
+            #print("Starting")
             self.results = []
-            i = 0
             self.response = "Creating strong password"
             self.progress = 0
-            password = self.password
             good = False
+            
             rockYouRes = ""
-            while True:
-                i += 1
-                result = self.lgr.checkPassword(password)
-                self.results.append([password, result])
 
-                if result == "good":
-                    now = datetime.now()
-                    with open(self.log, "a") as f:
-                        f.write("{} - LogR found {} to be a good password\n".format(now.strftime("%d/%m/%Y %H:%M:%S"), password))
-                    good = True
-                    break
-                if i == 100:
-                    break
-                password = self.englishToLeetspeak(password)
-            if good:
-                self.response = "Searching for password in RockYou2021"
-                self.progress = 50
-                ret = self.findInRockYou2021(password)
-                if ret:
-                    now = datetime.now()
-                    with open(self.log, "a") as f:
-                        f.write("{} - {} was found in the RockYou2021.txt password drop\n".format(now.strftime("%d/%m/%Y %H:%M:%S"), password))
-                    self.rockYouRes = "{} was found in the RockYou2021.txt password drop".format(password)
+            for x in range(0, 100):
+                strongPass = self.createPasswords(self.password)
+                
+                if strongPass != "":
+                    self.response = "Searching for password in RockYou2021"
+                    self.progress = 50
+                    ret = self.findInRockYou2021(strongPass)
+                    if ret:
+                        now = datetime.now()
+                        self.logText.append("{} - {} was found in the RockYou2021.txt password drop\n".format(now.strftime("%d/%m/%Y %H:%M:%S.%f"), strongPass))
+                        self.rockYouRes = "{} was found in the RockYou2021.txt password drop".format(strongPass)
+                    else:
+                        now = datetime.now()
+                        self.logText.append("{} - {} was NOT found in the RockYou2021.txt password drop\n".format(now.strftime("%d/%m/%Y %H:%M:%S.%f"), strongPass))
+                        self.rockYouRes = "{} was NOT found in the RockYou2021.txt password drop".format(strongPass)
                 else:
-                    now = datetime.now()
-                    with open(self.log, "a") as f:
-                        f.write("{} - {} was NOT found in the RockYou2021.txt password drop\n".format(now.strftime("%d/%m/%Y %H:%M:%S"), password))
-                    self.rockYouRes = "{} was NOT found in the RockYou2021.txt password drop".format(password)
-            else:
-                self.rockYouRes = "No good password was able to be created"
+                    self.rockYouRes = "No good password was able to be created"
+
+            write_to_file(self.log, self.logText)
+            #print(self.rockYouRes)
             self.response = "Done"
             self.progress = 100
 
@@ -169,18 +196,21 @@ class PasswordThread(threading.Thread):
             randNum = random.randrange(0, 10)
             message = "{}{}".format(randNum, message)
         elif ran > 0.25 and ran <= 0.50 and self.caps:
-            if random.random() <= 0.50:
-                while True:
-                    randNum = random.randrange(0, len(message))
-                    if message[randNum].isupper():
-                        message = message[:randNum] + message[randNum].lower() + message[randNum+1:]
-                        break
-            else:
-                while True:
-                    randNum = random.randrange(0, len(message))
-                    if message[randNum].islower():
-                        message = message[:randNum] + message[randNum].upper() + message[randNum+1:]
-                        break
+            if re.search('[a-zA-Z]', message) is not None:
+                if random.random() <= 0.50:
+                    if re.search("[A-Z]", message) is not None:
+                        while True:
+                            randNum = random.randrange(0, len(message))
+                            if message[randNum].isupper():
+                                message = message[:randNum] + message[randNum].lower() + message[randNum+1:]
+                                break
+                else:
+                    if re.search("[a-z]", message) is not None:
+                        while True:
+                            randNum = random.randrange(0, len(message))
+                            if message[randNum].islower():
+                                message = message[:randNum] + message[randNum].upper() + message[randNum+1:]
+                                break
         elif ran > 0.50 and ran <= 0.75 and self.backnum:
             randNum = random.randrange(0, 10)
             message = "{}{}".format(message, randNum)
@@ -193,18 +223,25 @@ class PasswordThread(threading.Thread):
 
         return message
 
-    def findInRockYou2021(self, word):
-        print("Looking for bad passwords")
-        with open(os.path.join("RockYou2021.txt", "realuniq.lst"), encoding="utf-8", errors="ignore") as f:
-            for line in f:
-                if word == line.replace("\n", ""):
-                    return True
-
-        return False
-
     def checkMachineLearning(self):
         results = self.lgr.checkPassword(self.password)
         return results
+
+    def findInRockYou2021(word):
+        #fileLocks[fileNum].acquire()
+        length = len(word)
+        start = word[0]
+        ret = False
+        try:
+            with open(os.path.join("Stage2", "RockYou2021.txt", "rockyou2021_part{}_{}.txt".format(start, length)), encoding="utf-8", errors="ignore", mode="r") as f:
+                for line in f:
+                    if word == line.replace("\n", ""):
+                        ret = True
+        except:
+            print("No file called rockyou2021_part{}_{}.txt was found".format(start, length))
+            ret = False
+        #fileLocks[fileNum].release()
+        return ret
 
 lgr = LogR()
 logMe = "passwordlog.log"
@@ -258,14 +295,35 @@ def createPass():
     global logMe
 
     password = request.form["password"]
-    caps = request.form.get("caps")
-    backNum = request.form.get("backNum")
-    frontNum = request.form.get("frontNum")
-    special = request.form.get("special")
-    leet = request.form.get("leet")
 
-    threadID = random.randint(1,99)
-    threads[threadID] = PasswordThread(log=logMe, runner="create", lgr=lgr, password=password, caps=caps, backnum=backNum, frontnum=frontNum, special=special, leet=leet)
-    threads[threadID].start()
+    try:
+        caps = request.form.get("caps")
+        if caps is None:
+            caps = True
+        backNum = request.form.get("backNum")
+        if backNum is None:
+            backNum = True
+        frontNum = request.form.get("frontNum")
+        if frontNum is None:
+            frontNum = True
+        special = request.form.get("special")
+        if special is None:
+            special = True
+        leet = request.form.get("leet")
+        if leet is None:
+            leet = True
+    except:
+        caps = True
+        backNum = True
+        frontNum = True
+        special = True
+        leet = True
+
+    if len(password) > 0:
+        threadID = random.randint(1,99)
+        threads[threadID] = PasswordThread(log=logMe, runner="create", lgr=lgr, password=password, caps=caps, backnum=backNum, frontnum=frontNum, special=special, leet=leet)
+        threads[threadID].start()
+    else:
+        threadID = -1
 
     return render_template("creator.html", threadID=threadID)
