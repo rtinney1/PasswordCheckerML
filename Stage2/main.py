@@ -13,9 +13,12 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import confusion_matrix, classification_report
 from datetime import datetime
+from nltk.tag import pos_tag
 
 import pandas as pd
+import wikipedia as wiki
 
+import nltk
 import os
 import random
 import re
@@ -23,6 +26,8 @@ import threading
 
 
 app = Flask(__name__, template_folder="templates")
+
+nltk.download('averaged_perceptron_tagger')
 
 """
 Class for logistic regression methods. Ensures machine learning algorithm is only trained once at the start of the program
@@ -104,6 +109,8 @@ class PasswordThread(threading.Thread):
         self.leet = leet
         self.logText = logText
 
+        print(self.logText)
+
         self.rockYouRes = ""
         self.results = ""
 
@@ -126,6 +133,30 @@ class PasswordThread(threading.Thread):
             password = self.englishToLeetspeak(password)
         return ""
 
+    def wikiCreate(self, word, oldWord):
+        linkList = wiki.search(word)
+
+        foundWords = []
+        password = ""
+        for link in linkList:
+            try:
+                stuff = wiki.page(link)
+                tags = pos_tag(stuff.content.split())
+                for tag in tags:
+                    if tag[1] == 'NNP' and tag[0] != "====" and tag[0] != '==':
+                        finding = tag[0]
+                        finding = finding.replace(".", "").replace('"', "").replace(';', '').replace('(', '').replace(')', '').replace(',', "").format(':', '')
+                        foundWords.append(finding)
+                break
+            except:
+                continue
+        password = ' '.join(random.choices(foundWords, k=4))
+
+        if password == oldWord:
+            password = self.wikiCreate(word, password)
+        
+        return password
+
     def run(self):
         if self.runner == "check":
             self.response = "Checking password against machine learning algorithm"
@@ -141,7 +172,7 @@ class PasswordThread(threading.Thread):
                 self.rockYouRes = "Password was NOT found in the RockYou2021.txt password drop"
             self.response = "Done"
             self.progress = 100
-        elif self.runner == "create":
+        elif self.runner == "create" or self.runner == "generate":
             #print("Starting")
             self.results = []
             self.response = "Creating strong password"
@@ -150,7 +181,10 @@ class PasswordThread(threading.Thread):
             
             rockYouRes = ""
 
-            strongPass = self.createPasswords(self.password)
+            if self.runner == "create":
+                strongPass = self.createPasswords(self.password)
+            elif self.runner == "generate":
+                strongPass = self.wikiCreate(self.password, "")
             
             if strongPass != "":
                 self.response = "Searching for password in RockYou2021"
@@ -169,7 +203,7 @@ class PasswordThread(threading.Thread):
 
             write_to_file(self.log, self.logText)
             #print(self.rockYouRes)
-            self.response = "Done"
+            self.response = "Done. Password created from {}".format(self.password)
             self.progress = 100
 
     #Idea from https://inventwithpython.com/bigbookpython/project40.html
@@ -255,10 +289,21 @@ def home():
 def checkPass():
     global lgr
     global threads
+    global logMe
+
+    logText = []
 
     password = request.form["password"]
-    threadID = random.randint(1,99)
-    threads[threadID] = PasswordThread(runner="check", lgr=lgr, password=password)
+    go = False
+
+    while not go:
+        try:
+            threadID = random.randint(1,99)
+            x = threads[threadID]
+        except:
+            go = True
+
+    threads[threadID] = PasswordThread(log=logMe, logText=logText, runner="check", lgr=lgr, password=password)
     threads[threadID].start()
 
     return render_template("checker.html", threadID=threadID)
@@ -270,6 +315,10 @@ def creator():
 @app.route("/checker/")
 def checker():
     return render_template("checker.html", threadID="-1", results="")
+
+@app.route("/generate/")
+def generator():
+    return render_template("generator.html", threadID="-1", results=dict())
 
 @app.route("/progress/", methods=["POST"])
 def getProgress():
@@ -286,6 +335,31 @@ def getProgress():
         del threads[int(threadID)]
         threadID = -1
     return {"progress": progress, "response": response, "results": results, "rockYouRes": rockYou, "threadID": threadID}
+
+@app.route("/generatePass/", methods=["POST"])
+def generatePass():
+    global lgr
+    global threads
+    global logMe
+
+    password = request.form["password"]
+    now = datetime.now()
+    logText = []
+    logText.append("{} - Generating password from: {}\n".format(now.strftime("%d/%m/%Y %H:%M:%S.%f"), password.rstrip()))
+
+    go = False
+
+    while not go:
+        try:
+            threadID = random.randint(1,99)
+            x = threads[threadID]
+        except:
+            go = True
+
+    threads[threadID] = PasswordThread(log=logMe, logText=logText, runner="generate", lgr=lgr, password=password)
+    threads[threadID].start()
+
+    return render_template("generator.html", threadID=threadID)
 
 @app.route("/createPass/", methods=["POST"])
 def createPass():
@@ -322,7 +396,15 @@ def createPass():
         now = datetime.now()
         logText = []
         logText.append("{} - Testing phrase: {}\n".format(now.strftime("%d/%m/%Y %H:%M:%S.%f"), password.rstrip()))
-        threadID = random.randint(1,99)
+        go = False
+
+        while not go:
+            try:
+                threadID = random.randint(1,99)
+                x = threads[threadID]
+            except:
+                go = True
+
         threads[threadID] = PasswordThread(log=logMe, logText=logText, runner="create", lgr=lgr, password=password, caps=caps, backnum=backNum, frontnum=frontNum, special=special, leet=leet)
         threads[threadID].start()
     else:
