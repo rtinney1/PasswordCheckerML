@@ -58,7 +58,10 @@ Once a password meets the criteria, the user can press the Check button to see w
   
 ### Creator
 The program will allow the user to enter in a password, phrase, word, or series of characters/numbers and attempts to create a strong password from what was entered. Once the machine learning algorithm determines that the created password is strong, the program tries to find the created password within the RockYou2021 password drop.
-  
+
+### Generate
+This program will allow the user to enter a topic of their choice in which to create a password from. The program uses the Wikipedia API to grab the contents of the most relevent page. From the page, it will then use the NLTK python module to grab all proper nouns. Four random words will be selected from the list and create a space separated password that will, hopefully, be easy for the user to remember. Once the password is created, the program will try to find the generated password within the RockYou2021 password drop.
+
 A log of these created passwords are stored in passwordlog.log
 
 The machine learning algorithm in use is Logistic Regression
