@@ -1,3 +1,7 @@
 sklearn
 pandas
 flask
+random_word
+PyYAML
+wikipedia
+nltk
